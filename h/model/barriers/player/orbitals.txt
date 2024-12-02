@@ -1,0 +1,13 @@
+№ 1; n:  2; pos:  2; electrons:   2; orbita:    2; border:    8; summa:    2; volume:     8
+№ 2; n:  4; pos:  6; electrons:   8; orbita:   10; border:   56; summa:   12; volume:    64
+№ 3; n:  6; pos: 10; electrons:  18; orbita:   28; border:  152; summa:   40; volume:   216
+№ 4; n:  8; pos: 14; electrons:  32; orbita:   60; border:  296; summa:  100; volume:   512
+№ 5; n: 10; pos: 18; electrons:  50; orbita:  110; border:  488; summa:  210; volume:  1000
+№ 6; n: 12; pos: 22; electrons:  72; orbita:  182; border:  728; summa:  392; volume:  1728
+№ 7; n: 14; pos: 26; electrons:  98; orbita:  280; border: 1016; summa:  672; volume:  2744
+№ 8; n: 16; pos: 30; electrons: 128; orbita:  408; border: 1352; summa: 1080; volume:  4096
+№ 9; n: 18; pos: 34; electrons: 162; orbita:  570; border: 1736; summa: 1650; volume:  5832
+№10; n: 20; pos: 38; electrons: 200; orbita:  770; border: 2168; summa: 2420; volume:  8000
+№11; n: 22; pos: 42; electrons: 242; orbita: 1012; border: 2648; summa: 3432; volume: 10648
+№12; n: 24; pos: 46; electrons: 288; orbita: 1300; border: 3176; summa: 4732; volume: 13824
+№13; n: 26; pos: 50; electrons: 338; orbita: 1638; border: 3752; summa: 6370; volume: 17576

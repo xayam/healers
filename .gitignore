@@ -1,0 +1,12 @@
+.git/
+.github/
+build/
+dist/
+venv/*
+.idea/
+__pycache__/
+h/model/history/
+h/mvp/history/
+h/model/barriers/chess/history/
+h/player/history
+tesifaz.spec
