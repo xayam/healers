@@ -6,7 +6,7 @@ orbital = [[0], [0]]
 summa = 0
 volume = 0
 
-# for planet, coeff in COEFFS.items():
+#  for planet, coeff in COEFFS.items():
 for i in range(1, 12 + 1):
     positions.append(pos)
     orbital.append(positions[:])
