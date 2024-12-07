@@ -6,8 +6,10 @@ import os.path
 # import keyboard
 import concurrent.futures as pool
 import random
+import sys
+from time import sleep
 
-from chess.svg import board
+import torch.nn
 from pynput import keyboard
 import chess
 import chess.engine
@@ -22,6 +24,7 @@ import regmet
 class Model:
 
     def __init__(self):
+        self.sf = None
         self.job = None
         self.params = None
         self.listener = None
@@ -31,10 +34,11 @@ class Model:
         self.stop = None
         self.random = None
         self.model = None
-        self.dataset = None
+        self.dataset = {}
         self.last_fen = None
         self.file_model = None
-        self.file_formula = None
+        self.file_formula1 = None
+        self.file_formula2 = None
         self.pre_model_json = None
         self.model_json = None
         self.model_option = None
@@ -46,14 +50,15 @@ class Model:
         self.count_limit = None
         self.device = None
         self.dtype = None
-        self.formula = None
+        self.formula1 = None
+        self.formula2 = None
 
         self.model_config()
 
     def model_config(self):
         # Set this
         self.engine_stockfish = \
-            'D:/Work2/PyCharm/SmartEval2/github/src/poler/poler/bin' + \
+            'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
             '/stockfish-windows-x86-64-avx2.exe'
         self.syzygy_endgame = {
             "wdl345": "E:/Chess/syzygy/3-4-5-wdl",
@@ -71,12 +76,13 @@ class Model:
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "hidden_layer": 13,
+            "hidden_layer": [3, 3, 3],
             "grid": 5,
             "k": 3,
         }
         self.file_model = "model.pth"
-        self.file_formula = "model_formula.txt"
+        self.file_formula1 = "model_formula1.txt"
+        self.file_formula2 = "model_formula2.txt"
         self.pre_model_json = "pre_model.json"
         self.model_json = "model.json"
         self.lib_formula = [
@@ -84,7 +90,7 @@ class Model:
             'log', 'sqrt', 'tanh', 'sin', 'tan', 'abs',
         ]
         self.epd_eval = "dataset.epdeval"
-        self.len_input = 64 * 12 + 4
+        self.len_input = 65
         self.count_limit = 48
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu'
@@ -93,7 +99,12 @@ class Model:
 
         print(str(self.device).upper(), self.dtype)
 
-        self.formula = self.model_load()
+        self.formula1, self.formula2 = self.model_load()
+
+    def loss_function(self, xx, yy):
+        return torch.mean(
+            yy - xx, dtype=self.dtype
+        )
 
     def start(self):
         while True:
@@ -129,8 +140,14 @@ class Model:
                 execute.submit(self.job, **self.params)
                 execute.shutdown()
 
-    def save_model(self):
+    def model_save(self):
         torch.save(self.model.state_dict(), self.file_model)
+        d = self.dataset["train_input"].tolist()
+        tl = self.dataset["train_label"].tolist()
+        for i in range(len(d)):
+            d[i].append(tl[i])
+        with open("dataset.json", "w") as f:
+            json.dump(d, f)
 
     def save_formula(self):
         utils_print("self.save_formula() starting...")
@@ -145,62 +162,174 @@ class Model:
             with open(self.model_json, "w") as f:
                 json.dump(self.model_option, f)
         self.model = KAN(
-            width=[self.len_input, self.model_option["hidden_layer"], 1],
+            width=[self.len_input, *self.model_option["hidden_layer"], 65],
             grid=self.model_option["grid"],
-            k=self.model_option["k"], auto_save=False, seed=0
+            k=self.model_option["k"], auto_save=False, seed=0,
+            noise_scale=0.1,
+            sp_trainable=False,
+            sb_trainable=False,
         )
         if os.path.exists(self.file_model):
             self.model.load_state_dict(torch.load(self.file_model))
-        if not os.path.exists(self.file_formula):
-            return None
+        if not os.path.exists(self.file_formula1) or \
+           not os.path.exists(self.file_formula2):
+            return None, None
         else:
-            with open(self.file_formula, encoding="UTF-8", mode="r") as p:
-                return str(p.read()).strip()
+            with open(self.file_formula1, encoding="UTF-8", mode="r") as p:
+                f1 = str(p.read()).strip()
+            with open(self.file_formula2, encoding="UTF-8", mode="r") as p:
+                f2 = str(p.read()).strip()
+            return f1, f2
 
     def model_finetune(self, save_formula=False):
         if not save_formula:
             utils_print("self.model_finetune() starting...")
         count = 0
+
         while True:
             count += 1
-            self.dataset = self.get_data(
-                fen_generator=self.get_fen_epd,
-                get_score=self.get_score,
-                count_limit=8  # self.count_limit
-            )
+            utils_print(count)
+            self.load_data()
+            utils_print(self.dataset["train_input"].shape)
+            utils_print(self.dataset["test_input"].shape)
             result = self.model.fit(
                 self.dataset,
-                # loss_fn=self.loss_function,
-                steps=2,
-                # metrics=(
-                #     self.train_accuracy,
-                #     self.test_accuracy
-                # )
+                opt="LBFGS",
+                # loss_fn=torch.nn.,
+                lamb=0.001,
+                steps=20,
+                update_grid=False,
+                metrics=(
+                     self.train_acc,
+                     self.test_acc
+                )
             )
-            utils_print(
-                count,
-                # result['train_accuracy'][-1],
-                # result['test_accuracy'][-1]
-            )
-            utils_print(f"result['train_loss']={result['train_loss']}")
-            utils_print(f"result['test_loss']={result['test_loss']}")
-            model.save_model()
+            utils_print("")
+            utils_print(result['train_acc'][-1], result['test_acc'][-1])
+            model.model_save()
+            self.dataset = {}
             if save_formula:
                 self.model.auto_symbolic(lib=self.lib_formula)
-                formula = self.model.symbolic_formula()[0][0]
-                with open(self.file_formula, encoding="UTF-8", mode="w") as p:
-                    p.write(str(formula).strip())
+                formula1 = self.model.symbolic_formula()[0][0]
+                with open(self.file_formula1, encoding="UTF-8", mode="w") as p:
+                    p.write(str(formula1).strip())
                 break
-            # if count == 1:
+            # if count == 10:
             #     break
+
+    def acc(self, formula1, formula2, X, y):
+        batch = X.shape[0]
+        correct = 0
+        for i in range(batch):
+            logit1 = np.array(
+                formula1.subs('x_1', X[i, 0]).
+                subs('x_2', X[i, 1]).
+                subs('x_3', X[i, 2]).
+                subs('x_4', X[i, 3]).
+                subs('x_5', X[i, 4])
+            ).astype(
+                np.float32)
+            logit2 = np.array(
+                formula2.subs('x_1', X[i, 0]).
+                subs('x_2', X[i, 1]).
+                subs('x_3', X[i, 2]).
+                subs('x_4', X[i, 3]).
+                subs('x_5', X[i, 4])
+            ).astype(
+                np.float32)
+            correct += (logit2 < logit1) == y[i]
+        return correct / batch
+
+    def get_data_rook(self):
+        square_to_index = [
+            56, 57, 58, 59, 60, 61, 62, 63,
+            48, 49, 50, 51, 52, 53, 54, 55,
+            40, 41, 42, 43, 44, 45, 46, 47,
+            32, 33, 34, 35, 36, 37, 38, 39,
+            24, 25, 26, 27, 28, 29, 30, 31,
+            16, 17, 18, 19, 20, 21, 22, 23,
+             8,  9, 10, 11, 12, 13, 14, 15,
+             0,  1,  2,  3,  4,  5,  6,  7
+        ]
+        dataset_input = []
+        dataset_label = []
+        board = chess.Board()
+        count = 0
+        while True:
+            fen = ["1"] * 64
+            random_arr = [i for i in range(64)]
+            bk = self.random.choice(random_arr)
+            fen[bk] = "k"
+            wk = self.random.choice(random_arr)
+            fen[wk] = "K"
+            wr = self.random.choice(random_arr)
+            fen[wr] = "R"
+            if bk == wk or bk == wr or wk == wr:
+                continue
+            output = ""
+            for i in range(8):
+                output += "".join(fen[i * 8: i * 8 + 8]) + "/"
+            color = self.random.choice(["w", "b"])
+            output = output[:-1] + " " + color + " - - 0 1"
+            output = output.replace("11111111", "8")
+            output = output.replace("1111111", "7")
+            output = output.replace("111111", "6")
+            output = output.replace("11111", "5")
+            output = output.replace("1111", "4")
+            output = output.replace("111", "3")
+            output = output.replace("11", "2")
+            try:
+                board.set_fen(output)
+            except:
+                continue
+            c = 0
+            while not board.is_game_over():
+                board1 = self.board_to_input65(board)
+                move = self.random.choice(list(board.legal_moves))
+                board.push(move)
+                board2 = self.board_to_input65(board)
+                dataset_input.append(board1)
+                dataset_label.append(board2)
+                c += 1
+                if c > 100:
+                    break
+            count += 1
+            if count > 100:
+                break
+        return dataset_input, dataset_label
+
+    def board_to_input65(self, board):
+        input65 = [0.0 for _ in range(65)]
+        for sq in range(1, 65):
+            piece = board.piece_at(sq - 1)
+            if piece is None:
+                continue
+            if piece.color == chess.BLACK and piece.piece_type == chess.KING:
+                input65[sq] = 0.25
+            if piece.color == chess.WHITE and piece.piece_type == chess.KING:
+                input65[sq] = 0.5
+            if piece.color == chess.WHITE and piece.piece_type == chess.ROOK:
+                input65[sq] = 0.75
+        input65[0] = float(int(board.turn))
+        return input65
+
+    def load_data(self):
+        train_inputs, train_labels = self.get_data_rook()
+        self.dataset['train_input'] = \
+            torch.FloatTensor(train_inputs).type(self.dtype).to(self.device)
+        self.dataset['train_label'] = \
+            torch.FloatTensor(train_labels).type(self.dtype).to(self.device)
+        test_inputs, test_labels = self.get_data_rook()
+        self.dataset['test_input'] = \
+            torch.FloatTensor(test_inputs).type(self.dtype).to(self.device)
+        self.dataset['test_label'] = \
+            torch.FloatTensor(test_labels).type(self.dtype).to(self.device)
 
     def model_params(self):
         print("self.model_params() starting...")
-        self.dataset = self.get_data(
-            fen_generator=self.get_fen_epd,
-            get_score=self.get_score,
-            count_limit=self.count_limit
-        )
+        self.load_data()
+        print(self.dataset['train_input'].shape)
+        print(self.dataset['test_input'].shape)
         if os.path.exists(self.pre_model_json):
             with open(self.pre_model_json, "r") as f:
                 self.model_option = json.load(f)
@@ -213,17 +342,19 @@ class Model:
         maximum_k = 10 ** 10
         while True:
             self.model = KAN(
-                width=[self.len_input, hidden_layer1, 1],
+                width=[self.len_input, *hidden_layer1, 1],
                 grid=grid1, k=k1, auto_save=False, seed=0)
             result = self.model.fit(
-                self.dataset, loss_fn=self.loss_function, steps=2,
+                self.dataset,
+                opt="LBFGS",
+                steps=5,
                 metrics=(
-                    self.train_accuracy,
-                    self.test_accuracy
+                    self.train_acc,
+                    self.test_acc
                 )
             )
-            if result['test_accuracy'][-1] < maxi:
-                maxi = result['test_accuracy'][-1]
+            if result['test_acc'][-1] < maxi:
+                maxi = result['test_acc'][-1]
                 maximum_layer = hidden_layer1
                 maximum_grid = grid1
                 maximum_k = k1
@@ -233,37 +364,25 @@ class Model:
                             "k": maximum_k}
                     json.dump(data, f)
 
-            print(result['train_accuracy'][-1], result['test_accuracy'][-1])
+            print(result['train_acc'], result['test_acc'])
             print(f"hidden_layer={maximum_layer}, grid={maximum_grid}, " +
                   f"k={maximum_k}, maxi_test_acc={maxi}")
             print(f"hidden_layer={hidden_layer1}, grid={grid1}, " +
                   f"k={k1}, test_loss={result['test_loss'][0]}")
             # if self.stop:
-            #     self.save_model()
-            #     break
-            hidden_layer1 = self.random.choice(list(range(5, 101)))
-            grid1 = self.random.choice(list(range(5, 51)))
-            k1 = self.random.choice(list(range(3, 26)))
+            #     self.model_save()
+            break
+            # hidden_layer1 = self.random.choice(list(range(5, 101)))
+            # grid1 = self.random.choice(list(range(5, 51)))
+            # k1 = self.random.choice(list(range(3, 26)))
 
-    @staticmethod
-    def loss_function(xx, yy):
-        return torch.mean(
-                yy - xx
-        )
+    def train_acc(self):
+        return torch.mean((torch.round(self.model(self.dataset['train_input'])) ==
+                           self.dataset['train_label']).type(self.dtype))
 
-    def train_accuracy(self):
-        return torch.mean(
-            self.model(self.dataset['train_input'])[:, 0]
-            -
-            self.dataset['train_label'][:, 0]
-        )
-
-    def test_accuracy(self):
-        return torch.mean(
-            self.model(self.dataset['test_input'])[:, 0]
-            -
-            self.dataset['test_label'][:, 0]
-        )
+    def test_acc(self):
+        return torch.mean((torch.round(self.model(self.dataset['test_input'])) ==
+                           self.dataset['test_label']).type(self.dtype))
 
     def get_train(self, state1, state2):
         return self.get_input(state1) + self.get_input(state2)
@@ -412,12 +531,26 @@ class Model:
 
     def get_score(self, state, depth=10):
         with chess.engine.SimpleEngine.popen_uci(self.engine_stockfish) as sf:
-            result = sf.analyse(state, chess.engine.Limit(depth=depth))
-            # if state.turn == chess.WHITE:
+            result = sf.analyse(
+                state,
+                chess.engine.Limit(depth=depth),
+            )
             score = result['score'].white().score()
-            # else:
-            #     score = result['score'].black().score()
             return score
+
+    def get_best(self, state, depth=20):
+        self.sf = chess.engine.SimpleEngine.popen_uci(
+            self.engine_stockfish
+        )
+        variants = self.sf.analyse(
+            board=state,
+            limit=chess.engine.Limit(depth=depth),
+            multipv=1,
+            game = object()
+        )
+        bestmove = variants[0]["pv"][0]
+        self.sf.quit()
+        return bestmove
 
     def get_fen_epd(self, get_score, count_limit):
         with open(self.epd_eval, mode="r") as f:
@@ -478,30 +611,42 @@ class Model:
 
     def model_test(self):
         print("self.model_test() starting...")
-        self.dataset = self.get_data(
-            fen_generator=self.get_fen_epd,
-            get_score=self.get_score,
-            count_limit=4
-        )
-        y_true = self.dataset["train_label"]
-        # print(self.dataset["test_input"])
-        variables = []
-        for data in self.dataset["train_input"]:
-            variables.append({
-                f"x_{i}": data[i - 1].numpy().item(0)
-                for i in range(self.len_input, 0, -1)
-            })
-        # print(variables)
-        y_pred = []
-        # formula = self.formula
-        for data in variables:
-            formula = str(self.formula)
-            for key, value in data.items():
-                formula = str(formula).replace(key, str(value))
-            y_pred.append(eval(formula))
-        print(y_pred)
-
-        regmet.RegressionMetrics(y_true, y_pred)
+        self.load_data()
+        y_pred = self.model(self.dataset['test_input'])
+        for i in range(len(self.dataset["test_input"])):
+            print(
+                y_pred[i], self.dataset["test_label"][i]
+            )
+        # formula1, formula2 = self.model.symbolic_formula()[0]
+        # print('train acc of the formula:',
+        #       self.acc(
+        #           formula1, formula2, self.dataset['train_input'],
+        #           self.dataset['train_label'])
+        #       )
+        # print('test acc of the formula:',
+        #       self.acc(
+        #           formula1, formula2, self.dataset['test_input'],
+        #           self.dataset['test_label'])
+        #       )
+        # y_true = self.dataset["train_label"]
+        # variables = []
+        # for data in self.dataset["train_input"]:
+        #     variables.append({
+        #         f"x_{i}": data[i - 1].numpy().item(0)
+        #         for i in range(self.len_input, 0, -1)
+        #     })
+        # y_pred = []
+        # for data in variables:
+        #     formula1 = str(self.formula1)
+        #     for key, value in data.items():
+        #         formula1 = str(formula1).replace(key, str(value))
+            # formula2 = str(self.formula2)
+            # for key, value in data.items():
+            #     formula2 = str(formula2).replace(key, str(value))
+            # y_pred.append(eval(formula1))
+        # print(y_pred)
+        #
+        # regmet.RegressionMetrics(y_true, y_pred)
 
     def make_predict(self):
         print("self.make_predict() starting...")
@@ -543,6 +688,7 @@ class Model:
             if board1.is_game_over():
                 break
         print(board1.result())
+
 
 if __name__ == "__main__":
     model = Model()
