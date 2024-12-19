@@ -3,7 +3,12 @@
 class Cube3:
 
     def __init__(self, scheme):
-        self.scheme = scheme
+        self.scheme = [
+            [*scheme[1]],
+            [*scheme[0]],
+            [*scheme[2]]
+        ]
+        self.state = []
         self.init()
 
     def init(self):
@@ -12,28 +17,38 @@ class Cube3:
     def __str__(self):
         return str(self.scheme)
 
-    def rotate08(self):
+    def rotate(self):
+        self._rotate08()
+        self._rotate17()
+        self._rotate26()
+        self._rotate53()
+        self._rotate80()
+        self._rotate71()
+        self._rotate62()
+        self._rotate35()
+
+    def _rotate08(self):
         pass
 
-    def rotate17(self):
+    def _rotate17(self):
         pass
 
-    def rotate26(self):
+    def _rotate26(self):
         pass
 
-    def rotate53(self):
+    def _rotate53(self):
         pass
 
-    def rotate80(self):
+    def _rotate80(self):
         pass
 
-    def rotate71(self):
+    def _rotate71(self):
         pass
 
-    def rotate62(self):
+    def _rotate62(self):
         pass
 
-    def rotate35(self):
+    def _rotate35(self):
         pass
 
 
