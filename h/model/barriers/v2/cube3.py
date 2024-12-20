@@ -8,7 +8,7 @@ class Cube3:
             [*scheme[0]],
             [*scheme[2]]
         ]
-        self.state = None
+        self.state = []
         self.init()
 
     def init(self):
@@ -18,7 +18,6 @@ class Cube3:
                   for i in range(3)]
         layer2 = [self.scheme[2][i] + 2 * 3 ** 2
                   for i in range(3)]
-        self.state = []
         position = -1
         for state in layer0 + layer1 + layer2:
             for pos in range(position + 1, state):
