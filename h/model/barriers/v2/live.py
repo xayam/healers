@@ -1,8 +1,9 @@
-from h.model.barriers.v2.thor8 import Thor8
+from h.model.barriers.v2.two import Two
 
 
 def main():
-    pass
+    t = Two()
+    print(t)
 
 
 if __name__ == "__main__":
