@@ -24,7 +24,8 @@ class Thor8:
 
 
 def main():
-    pass
+    model = Thor8()
+    print(model)
 
 
 if __name__ == "__main__":
