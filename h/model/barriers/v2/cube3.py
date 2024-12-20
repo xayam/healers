@@ -8,14 +8,28 @@ class Cube3:
             [*scheme[0]],
             [*scheme[2]]
         ]
-        self.state = []
+        self.state = None
         self.init()
 
     def init(self):
-        pass
+        layer0 = [self.scheme[0][i]
+                  for i in range(3)]
+        layer1 = [self.scheme[1][i] + 3 ** 2
+                  for i in range(3)]
+        layer2 = [self.scheme[2][i] + 2 * 3 ** 2
+                  for i in range(3)]
+        self.state = []
+        position = -1
+        for state in layer0 + layer1 + layer2:
+            for pos in range(position + 1, state):
+                self.state.append(-1)
+            self.state.append(state)
+            position = state
+        for pos in range(position + 1, 3 ** 3):
+            self.state.append(-1)
 
     def __str__(self):
-        return str(self.scheme)
+        return str(self.state)
 
     def rotate(self):
         self._rotate08()
