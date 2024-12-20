@@ -19,6 +19,9 @@ class Thor8:
         ]
         self.state = [Cube3(scheme=scheme) for scheme in self.schemes]
 
+    def __str__(self):
+        return "\n".join(map(str, self.state))
+
 
 def main():
     pass
