@@ -328,6 +328,7 @@ class Model:
                     math.pi / 8 * (move.from_square % 8 + 1)
                 )
             train_input[index + 1] = color * \
+                material[state.piece_type_at(move.from_square) - 1] * \
                 math.sin(
                     2 * math.pi *
                     (move.to_square // 8 + 1) +
