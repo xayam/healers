@@ -43,7 +43,6 @@ class Model:
         self.device = None
         self.dtype = None
         self.formula1 = None
-        self.formula2 = None
 
         self.model_config()
 
@@ -59,15 +58,15 @@ class Model:
             0: {"call": None, "desc": "Exit"},
             1: {"call": self.model_params, "desc": "Search hyperparameters"},
             2: {"call": self.model_finetune, "desc": "Fine-Tune model"},
-            3: {"call": self.save_formula, "desc": "Save formula"},
+            3: {"call": self.model_formula, "desc": "Save formula"},
             4: {"call": self.model_test, "desc": "Test model"},
-            5: {"call": self.make_predict, "desc": "Make predict"},
+            5: {"call": self.model_predict, "desc": "Make predict"},
         }
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "len_input": 68,
-            "hidden_layers": [68, 34, 17, 9, 5, 3, 1],
+            "len_input": 64 * 2 + 4,
+            "hidden_layers": [66, 33, 17, 9, 5, 3, 2, 1],
             "len_output": 1,
             "grid": 5,
             "k": 3,
@@ -90,7 +89,7 @@ class Model:
 
         print(str(self.device).upper(), self.dtype)
 
-        self.formula1, self.formula2 = self.model_load()
+        self.formula1= self.model_load()
 
     def start(self):
         while True:
@@ -119,8 +118,8 @@ class Model:
         with open("dataset.json", "w") as f:
             json.dump(d, f)
 
-    def save_formula(self):
-        utils_print("self.save_formula() starting...")
+    def model_formula(self):
+        utils_print("self.model_formula() starting...")
         self.model_finetune(save_formula=True)
 
     def model_load(self):
@@ -145,15 +144,12 @@ class Model:
         )
         if os.path.exists(self.file_model):
             self.model.load_state_dict(torch.load(self.file_model))
-        if not os.path.exists(self.file_formula1) or \
-           not os.path.exists(self.file_formula2):
-            return None, None
+        if not os.path.exists(self.file_formula1):
+            return None
         else:
             with open(self.file_formula1, encoding="UTF-8", mode="r") as p:
                 f1 = str(p.read()).strip()
-            with open(self.file_formula2, encoding="UTF-8", mode="r") as p:
-                f2 = str(p.read()).strip()
-            return f1, f2
+            return f1
 
     def model_finetune(self, save_formula=False):
         if not save_formula:
@@ -162,7 +158,7 @@ class Model:
         while True:
             count += 1
             utils_print(count)
-            self.load_data(nums=1000, epoch=500)
+            self.get_dataset(nums=1000, epoch=1000)
             utils_print(self.dataset["train_input"].shape)
             utils_print(self.dataset["train_label"].shape)
             utils_print(self.dataset["test_input"].shape)
@@ -236,7 +232,7 @@ class Model:
                 board.push(best_move)
         return result_train, result_label
 
-    def load_data(self, nums=10, epoch=10):
+    def get_dataset(self, nums=10, epoch=10):
         train_inputs, train_labels = self.get_data(nums=nums, epoch=epoch)
         self.dataset['train_input'] = \
             torch.FloatTensor(train_inputs).type(self.dtype).to(self.device)
@@ -301,24 +297,42 @@ class Model:
             # k1 = self.random.choice(list(range(3, 26)))
 
     def train_acc(self):
-        return torch.mean((torch.round(self.model(self.dataset['train_input'])) ==
-                           self.dataset['train_label']).type(self.dtype))
+        return torch.mean(
+            (torch.round(self.model(self.dataset['train_input'])) ==
+             self.dataset['train_label']).type(self.dtype)
+        )
 
     def test_acc(self):
-        return torch.mean((torch.round(self.model(self.dataset['test_input'])) ==
-                           self.dataset['test_label']).type(self.dtype))
+        return torch.mean(
+            (torch.round(self.model(self.dataset['test_input'])) ==
+             self.dataset['test_label']).type(self.dtype)
+        )
 
     @staticmethod
     def get_input(state):
-        train_input = [0. for _ in range(64)]
-        for piece in chess.PIECE_TYPES:
-            for square in state.pieces(piece, chess.BLACK):
-                train_input[square] = \
-                    - math.sin(2 * math.pi * piece + math.pi / 63 * square)
-        for piece in chess.PIECE_TYPES:
-            for square in state.pieces(piece, chess.WHITE):
-                train_input[square] = \
-                    math.sin(2 * math.pi * piece + math.pi / 63 * square)
+        train_input = [0. for _ in range(64 * 2)]
+        material = [1., 3., 3.5, 5., 9., 40.]
+        moves = list(state.legal_moves)
+        color = 1. if state.turn == chess.WHITE else -1.
+        index = 0
+        for move in moves:
+            train_input[index] = color * \
+                material[state.piece_type_at(move.from_square) - 1] * \
+                math.sin(
+                    2 * math.pi *
+                    state.piece_type_at(move.from_square) +
+                    math.pi / 64 * (move.from_square + 1)
+                )
+            piece_to_square = state.piece_type_at(move.to_square)
+            if piece_to_square is None:
+                piece_to_square = 0.
+            train_input[index + 1] = \
+                train_input[move.to_square] + color * \
+                math.sin(
+                    2 * math.pi * piece_to_square +
+                    math.pi / 64 * (move.to_square + 1)
+                )
+            index += 2
         if state.has_kingside_castling_rights(state.turn):
             train_input = [1.] + train_input
         else:
@@ -336,83 +350,74 @@ class Model:
 
     def model_test(self):
         print("self.model_test() starting...")
-        self.load_data()
-        y_pred = self.model(self.dataset['test_input'])
-        for i in range(len(self.dataset["test_input"])):
-            print(
-                y_pred[i], self.dataset["test_label"][i]
-            )
-        # formula1, formula2 = self.model.symbolic_formula()[0]
-        # print('train acc of the formula:',
-        #       self.acc(
-        #           formula1, formula2, self.dataset['train_input'],
-        #           self.dataset['train_label'])
-        #       )
-        # print('test acc of the formula:',
-        #       self.acc(
-        #           formula1, formula2, self.dataset['test_input'],
-        #           self.dataset['test_label'])
-        #       )
-        # y_true = self.dataset["train_label"]
-        # variables = []
-        # for data in self.dataset["train_input"]:
-        #     variables.append({
-        #         f"x_{i}": data[i - 1].numpy().item(0)
-        #         for i in range(self.len_input, 0, -1)
-        #     })
-        # y_pred = []
-        # for data in variables:
-        #     formula1 = str(self.formula1)
-        #     for key, value in data.items():
-        #         formula1 = str(formula1).replace(key, str(value))
-            # formula2 = str(self.formula2)
-            # for key, value in data.items():
-            #     formula2 = str(formula2).replace(key, str(value))
-            # y_pred.append(eval(formula1))
-        # print(y_pred)
-        #
-        # regmet.RegressionMetrics(y_true, y_pred)
+        count_win = 0
+        count_draw = 0
+        count_loss = 0
+        for _ in range(5):
+            board = chess.Board()
+            while not board.is_game_over():
+                best_move = self.get_best(board)
+                board.push(best_move)
+                print(board)
+                print("")
+                if board.is_game_over():
+                    break
+                moves = list(board.legal_moves)
+                best_move = self.random.choice(moves)
+                board.push(best_move)
+                print(board)
+                print(
+                    f"count_win={count_win}, " +
+                    f"count_loss={count_loss}, count_draw={count_draw}"
+                )
+                print("")
+            if board.result() == "1-0":
+                count_win += 1
+            elif board.result() == "0-1":
+                count_loss += 1
+            else:
+                count_draw += 1
 
-    def make_predict(self):
-        print("self.make_predict() starting...")
-        fen_start = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
-        board1 = chess.Board()
-        board1.set_fen(fen_start)
-        print(board1)
-        while True:
-            moves = list(board1.legal_moves)
+    def model_predict(self):
+        print("self.model_predict() starting...")
+        # fen_start = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
+        board = chess.Board()
+        # board.set_fen(fen_start)
+        print(board)
+        formula0 = self.model_load()
+        while not board.is_game_over():
+            moves = list(board.legal_moves)
             index = 0
             bestmove = index
-            score = 10 ** 6
+            score = - 10 ** 10
             for move in moves:
-                board1.push(move)
-                board2 = chess.Board()
-                board2.set_fen(board1.fen())
-                board1.pop()
-                inputs = self.get_input(state=board1)
+                board.push(move)
+                inputs = self.get_input(state=board)
                 variable_values = {
                     f"x_{i}": inputs[i - 1]
                     for i in range(self.len_input, 0, -1)
                 }
-                formula = self.model_load()
+                formula = str(formula0)[:]
+                # print(utils.ex_round(formula, 4))
                 for _var, _val in variable_values.items():
                     formula = str(formula).replace(_var, str(_val))
                 evaluate1 = eval(formula)
-                if evaluate1 < score:
+                if score > evaluate1:
                     bestmove = index
                     score = evaluate1
                 index += 1
-            board1.push(moves[bestmove])
-            print(board1)
+                board.pop()
+            board.push(moves[bestmove])
+            print(board)
             print("")
-            if board1.is_game_over():
+            if board.is_game_over():
                 break
-            board1.push(random.choice(list(board1.legal_moves)))
-            print(board1)
+            moves = list(board.legal_moves)
+            bestmove = self.random.choice(moves)
+            board.push(bestmove)
+            print(board)
             print("")
-            if board1.is_game_over():
-                break
-        print(board1.result())
+        print(board.result())
 
 
 if __name__ == "__main__":

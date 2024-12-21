@@ -150,7 +150,7 @@ class Model:
             json.dump(d, f)
 
     def save_formula(self):
-        utils_print("self.save_formula() starting...")
+        utils_print("self.model_formula() starting...")
         self.model_finetune(save_formula=True)
 
     def model_load(self):
@@ -649,7 +649,7 @@ class Model:
         # regmet.RegressionMetrics(y_true, y_pred)
 
     def make_predict(self):
-        print("self.make_predict() starting...")
+        print("self.model_predict() starting...")
         fen_start = "rnbqkbnr/pppppppp/8/8/8/8/PPPPPPPP/RNBQKBNR w KQkq - 0 1"
         board1 = chess.Board()
         board1.set_fen(fen_start)
