@@ -65,8 +65,8 @@ class Model:
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "len_input": 126 * 2 + 4,
-            "hidden_layers": [128, 64, 32, 16, 8, 4, 2, 1],
+            "len_input": 124 + 4,
+            "hidden_layers": [64, 32, 16, 8, 4, 2, 1],
             "len_output": 1,
             "grid": 5,
             "k": 3,
@@ -204,7 +204,7 @@ class Model:
             state.pop()
         return best_move
 
-    def get_data(self, nums=10, epoch=10):
+    def get_data(self, nums=1000, epoch=1000):
         result_train = []
         result_label = []
         board = chess.Board()
@@ -214,6 +214,7 @@ class Model:
                 board = board.mirror()
             board_copy = board.copy()
             inputs = self.get_input(board)
+            count_draw = 0
             for ep in range(epoch):
                 while not board_copy.is_game_over():
                     moves = list(board_copy.legal_moves)
@@ -222,12 +223,15 @@ class Model:
                     board_copy.push(best_move)
                 if board_copy.result() == "1-0":
                     result += 1.
-                elif board_copy.result() == "0-1":
-                    result += -1.
+                elif board_copy.result() == "1/2-1/2":
+                    result += 0.
+                    count_draw += 1
                 else:
-                    pass
+                    result += 0.
             result_train.append(inputs)
-            result_label.append(result / epoch)
+            label = result / (epoch - count_draw) \
+                if epoch != count_draw else result / epoch
+            result_label.append(label)
             if board.is_game_over():
                 board = chess.Board()
             else:
@@ -236,7 +240,7 @@ class Model:
                 board.push(best_move)
         return result_train, result_label
 
-    def get_dataset(self, nums=10, epoch=10):
+    def get_dataset(self, nums=1000, epoch=1000):
         train_inputs, train_labels = self.get_data(nums=nums, epoch=epoch)
         self.dataset['train_input'] = \
             torch.FloatTensor(train_inputs).type(self.dtype).to(self.device)
@@ -251,7 +255,7 @@ class Model:
 
     def model_params(self):
         print("self.model_params() starting...")
-        self.load_data()
+        self.get_dataset()
         print(self.dataset['train_input'].shape)
         print(self.dataset['test_input'].shape)
         if os.path.exists(self.pre_model_json):
@@ -314,27 +318,27 @@ class Model:
 
     @staticmethod
     def get_input(state):
-        train_input = [0. for _ in range(126 * 2)]
-        material = [1., 3.5, 3.5, 5., 9., 41.]
+        train_input = [0. for _ in range(124)]
+        # material = [1., 3.5, 3.5, 5., 9., 41.]
+        # material[state.piece_type_at(move.from_square) - 1] * \
         moves = list(state.legal_moves)
         color = 1. if state.turn == chess.WHITE else 1.
         index = 0
         for move in moves:
-            train_input[index] = color * \
-                material[state.piece_type_at(move.from_square) - 1] * \
+            from_square = color * \
                 math.sin(
                     2 * math.pi *
                     (move.from_square // 8 + 1) +
                     math.pi / 8 * (move.from_square % 8 + 1)
                 )
-            train_input[index + 1] = color * \
-                material[state.piece_type_at(move.from_square) - 1] * \
+            to_square = color * \
                 math.sin(
                     2 * math.pi *
                     (move.to_square // 8 + 1) +
                     math.pi / 8 * (move.to_square % 8 + 1)
                 )
-            index += 2
+            train_input[index] = to_square / from_square
+            index += 1
         if state.has_kingside_castling_rights(state.turn):
             train_input = [1.] + train_input
         else:
