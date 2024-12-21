@@ -65,8 +65,8 @@ class Model:
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "len_input": 64 * 2 + 4,
-            "hidden_layers": [66, 33, 17, 9, 5, 3, 2, 1],
+            "len_input": 126 * 2 + 4,
+            "hidden_layers": [128, 64, 32, 16, 8, 4, 2, 1],
             "len_output": 1,
             "grid": 5,
             "k": 3,
@@ -169,7 +169,7 @@ class Model:
                 # loss_fn=torch.nn.,
                 lamb=0.001,
                 steps=2,
-                update_grid=False,
+                update_grid=True,
                 metrics=(
                      self.train_acc,
                      self.test_acc
@@ -196,6 +196,8 @@ class Model:
                 [self.get_input(state)]
             ).type(self.dtype).to(self.device)
             score = self.model(inputs).detach().tolist()[0][0]
+            print(state)
+            print(score)
             if score > best_value:
                 best_value = score
                 best_move = move
@@ -208,6 +210,8 @@ class Model:
         board = chess.Board()
         for num in range(nums):
             result = 0.
+            if board.turn == chess.BLACK:
+                board = board.mirror()
             board_copy = board.copy()
             inputs = self.get_input(board)
             for ep in range(epoch):
@@ -310,27 +314,24 @@ class Model:
 
     @staticmethod
     def get_input(state):
-        train_input = [0. for _ in range(64 * 2)]
-        material = [1., 3., 3.5, 5., 9., 40.]
+        train_input = [0. for _ in range(126 * 2)]
+        material = [1., 3.5, 3.5, 5., 9., 41.]
         moves = list(state.legal_moves)
-        color = 1. if state.turn == chess.WHITE else -1.
+        color = 1. if state.turn == chess.WHITE else 1.
         index = 0
         for move in moves:
             train_input[index] = color * \
                 material[state.piece_type_at(move.from_square) - 1] * \
                 math.sin(
                     2 * math.pi *
-                    state.piece_type_at(move.from_square) +
-                    math.pi / 64 * (move.from_square + 1)
+                    (move.from_square // 8 + 1) +
+                    math.pi / 8 * (move.from_square % 8 + 1)
                 )
-            piece_to_square = state.piece_type_at(move.to_square)
-            if piece_to_square is None:
-                piece_to_square = 0.
-            train_input[index + 1] = \
-                train_input[move.to_square] + color * \
+            train_input[index + 1] = color * \
                 math.sin(
-                    2 * math.pi * piece_to_square +
-                    math.pi / 64 * (move.to_square + 1)
+                    2 * math.pi *
+                    (move.to_square // 8 + 1) +
+                    math.pi / 8 * (move.to_square % 8 + 1)
                 )
             index += 2
         if state.has_kingside_castling_rights(state.turn):
@@ -362,6 +363,7 @@ class Model:
                 print("")
                 if board.is_game_over():
                     break
+                board = board.mirror()
                 moves = list(board.legal_moves)
                 best_move = self.random.choice(moves)
                 board.push(best_move)
@@ -371,6 +373,7 @@ class Model:
                     f"count_loss={count_loss}, count_draw={count_draw}"
                 )
                 print("")
+                board = board.mirror()
             if board.result() == "1-0":
                 count_win += 1
             elif board.result() == "0-1":
