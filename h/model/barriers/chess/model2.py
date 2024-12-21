@@ -1,4 +1,5 @@
 import json
+import math
 import os.path
 
 import torch.nn
@@ -65,7 +66,9 @@ class Model:
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "hidden_layer": [3, 3, 3],
+            "len_input": 68,
+            "hidden_layers": [68, 34, 17, 9, 5, 3, 1],
+            "len_output": 1,
             "grid": 5,
             "k": 3,
         }
@@ -79,8 +82,7 @@ class Model:
             'log', 'sqrt', 'tanh', 'sin', 'tan', 'abs',
         ]
         self.epd_eval = "dataset.epdeval"
-        self.len_input = 65
-        self.count_limit = 48
+        # self.count_limit = 48
         self.device = torch.device(
             'cuda' if torch.cuda.is_available() else 'cpu'
         )
@@ -130,7 +132,11 @@ class Model:
             with open(self.model_json, "w") as f:
                 json.dump(self.model_option, f)
         self.model = KAN(
-            width=[self.len_input, *self.model_option["hidden_layer"], 65],
+            width=[
+                self.model_option["len_input"],
+                *self.model_option["hidden_layers"],
+                self.model_option["len_output"]
+            ],
             grid=self.model_option["grid"],
             k=self.model_option["k"], auto_save=False, seed=0,
             noise_scale=0.1,
@@ -153,26 +159,26 @@ class Model:
         if not save_formula:
             utils_print("self.model_finetune() starting...")
         count = 0
-
         while True:
             count += 1
             utils_print(count)
-            self.load_data()
+            self.load_data(nums=1000, epoch=500)
             utils_print(self.dataset["train_input"].shape)
+            utils_print(self.dataset["train_label"].shape)
             utils_print(self.dataset["test_input"].shape)
+            utils_print(self.dataset["test_label"].shape)
             result = self.model.fit(
                 self.dataset,
                 opt="LBFGS",
                 # loss_fn=torch.nn.,
                 lamb=0.001,
-                steps=20,
+                steps=2,
                 update_grid=False,
                 metrics=(
                      self.train_acc,
                      self.test_acc
                 )
             )
-            utils_print("")
             utils_print(result['train_acc'][-1], result['test_acc'][-1])
             model.model_save()
             self.dataset = {}
@@ -182,17 +188,62 @@ class Model:
                 with open(self.file_formula1, encoding="UTF-8", mode="w") as p:
                     p.write(str(formula1).strip())
                 break
+            self.model_load()
 
-    def get_data(self, nums=10):
-        pass
+    def get_best(self, state):
+        moves = list(state.legal_moves)
+        best_move = None
+        best_value = - 10 ** 10
+        for move in moves:
+            state.push(move)
+            inputs = torch.FloatTensor(
+                [self.get_input(state)]
+            ).type(self.dtype).to(self.device)
+            score = self.model(inputs).detach().tolist()[0][0]
+            if score > best_value:
+                best_value = score
+                best_move = move
+            state.pop()
+        return best_move
 
-    def load_data(self):
-        train_inputs, train_labels = self.get_data()
+    def get_data(self, nums=10, epoch=10):
+        result_train = []
+        result_label = []
+        board = chess.Board()
+        for num in range(nums):
+            result = 0.
+            board_copy = board.copy()
+            inputs = self.get_input(board)
+            for ep in range(epoch):
+                while not board_copy.is_game_over():
+                    moves = list(board_copy.legal_moves)
+                    best_move = self.random.choice(moves)
+                    # best_move = self.get_best(board_copy)
+                    board_copy.push(best_move)
+                if board_copy.result() == "1-0":
+                    result += 1.
+                elif board_copy.result() == "0-1":
+                    result += -1.
+                else:
+                    pass
+            result_train.append(inputs)
+            result_label.append(result / epoch)
+            if board.is_game_over():
+                board = chess.Board()
+            else:
+                moves = list(board.legal_moves)
+                best_move = self.random.choice(moves)
+                board.push(best_move)
+        return result_train, result_label
+
+    def load_data(self, nums=10, epoch=10):
+        train_inputs, train_labels = self.get_data(nums=nums, epoch=epoch)
         self.dataset['train_input'] = \
             torch.FloatTensor(train_inputs).type(self.dtype).to(self.device)
         self.dataset['train_label'] = \
             torch.FloatTensor(train_labels).type(self.dtype).to(self.device)
-        test_inputs, test_labels = self.get_data()
+        test_inputs, test_labels = self.get_data(nums=nums, epoch=epoch)
+        # test_inputs, test_labels = train_inputs, train_labels
         self.dataset['test_input'] = \
             torch.FloatTensor(test_inputs).type(self.dtype).to(self.device)
         self.dataset['test_label'] = \
@@ -257,24 +308,17 @@ class Model:
         return torch.mean((torch.round(self.model(self.dataset['test_input'])) ==
                            self.dataset['test_label']).type(self.dtype))
 
-    def get_train(self, state1, state2):
-        return self.get_input(state1) + self.get_input(state2)
-
-    def get_input(self, state):
-        train_input = [[0.] * 64 for _ in range(12)]
+    @staticmethod
+    def get_input(state):
+        train_input = [0. for _ in range(64)]
         for piece in chess.PIECE_TYPES:
             for square in state.pieces(piece, chess.BLACK):
-                train_input[piece - 1][square] = -piece
-                for move in state.pseudo_legal_moves:
-                    if move.from_square == square:
-                        train_input[piece - 1][move.to_square] = -piece
+                train_input[square] = \
+                    - math.sin(2 * math.pi * piece + math.pi / 63 * square)
         for piece in chess.PIECE_TYPES:
             for square in state.pieces(piece, chess.WHITE):
-                train_input[piece + 5][square] = piece
-                for move in state.pseudo_legal_moves:
-                    if move.from_square == square:
-                        train_input[piece + 5][move.to_square] = piece
-        train_input = [j for i in train_input for j in i]
+                train_input[square] = \
+                    math.sin(2 * math.pi * piece + math.pi / 63 * square)
         if state.has_kingside_castling_rights(state.turn):
             train_input = [1.] + train_input
         else:
@@ -288,10 +332,7 @@ class Model:
         else:
             train_input = [state.ep_square] + train_input
         train_input = [int(state.turn)] + train_input
-        return train_input[:self.len_input // 2]
-
-    def get_score(self, state, depth=10):
-        return 0.0
+        return train_input
 
     def model_test(self):
         print("self.model_test() starting...")
@@ -348,7 +389,7 @@ class Model:
                 board2 = chess.Board()
                 board2.set_fen(board1.fen())
                 board1.pop()
-                inputs = self.get_train(state1=board1, state2=board2)
+                inputs = self.get_input(state=board1)
                 variable_values = {
                     f"x_{i}": inputs[i - 1]
                     for i in range(self.len_input, 0, -1)
@@ -356,10 +397,10 @@ class Model:
                 formula = self.model_load()
                 for _var, _val in variable_values.items():
                     formula = str(formula).replace(_var, str(_val))
-                evaluate = eval(formula)
-                if evaluate < score:
+                evaluate1 = eval(formula)
+                if evaluate1 < score:
                     bestmove = index
-                    score = evaluate
+                    score = evaluate1
                 index += 1
             board1.push(moves[bestmove])
             print(board1)
