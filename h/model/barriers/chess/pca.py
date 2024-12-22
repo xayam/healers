@@ -35,12 +35,12 @@ x = [c[0] for c in X]
 y = [c[1] for c in X]
 mean_x = sum(x) / len(x)
 mean_y = sum(y) / len(y)
-x = [2 * (mean_x - c) / (max(x) - min(x)) for c in x]
-y = [2 * (mean_y - c) / (max(y) - min(y)) for c in y]
+x = [(mean_x - c) / (max(x) - min(x)) for c in x]
+y = [(mean_y - c) / (max(y) - min(y)) for c in y]
 d = []
 for a in range(len(x)):
     sign = 1. if x[a] >= 0. else -1.
-    d.append(sign * (x[a] ** 2 + y[a] ** 2))
-print(d)
+    d.append(2 * sign * (x[a] ** 2 + y[a] ** 2))
+print(sorted(d))
 plt.scatter(x, y)
 plt.show()
