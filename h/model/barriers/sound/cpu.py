@@ -10,25 +10,27 @@ class CPU:
 
     def __init__(self, function, grid=8):
         self.function = function
-        self.grid = grid
-        self.player = Player()
-
-    def run(self):
-        while True:
-            amplitudes = self.calc()
-            self.player.play(amplitudes=amplitudes)
-
-    def calc(self):
-        for x, y in self.function():
-            amplitudes = self.get(x, y)
-            yield amplitudes
-
-    def get(self, x=8.0, y=1.0):
-        grid = [
+        self.grid = [
             [i, j]
             for i in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
             for j in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
         ]
+        self.player = Player()
+
+    def run(self):
+        count = 0
+        while count <= 360:
+            amplitudes = self.calc()
+            self.player.play(amplitudes=amplitudes)
+            count += 1
+        self.player.save()
+
+    def calc(self):
+        for x, y in self.function():
+            amplitudes = self.get()
+            yield amplitudes
+
+    def get(self, x=8.0, y=1.0):
         x1 = 0.0
         y1 = 0.0
         x2 = x
@@ -40,7 +42,7 @@ class CPU:
                 ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
                 0
             ]
-            for c in grid
+            for c in self.grid
         ]
         X = [
             [
@@ -60,9 +62,9 @@ class CPU:
             sign = 1. if x[a] >= 0. else -1.
             result.append(
                 # [
-                    2 * sign * (x[a] ** 2 + y[a] ** 2)
+                2 * sign * (x[a] ** 2 + y[a] ** 2)
                 #     ,
-                #     grid[a][0], grid[a][1]
+                #     self.grid[a][0], self.grid[a][1]
                 # ]
             )
         return result

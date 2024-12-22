@@ -8,6 +8,9 @@ class Player:
     def play(self, amplitudes):
         pass
 
+    def save(self):
+        pass
+
 
 def main():
     p = Player()
