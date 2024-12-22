@@ -11,21 +11,36 @@ X = [
     if x != 0 and y != 0
 ]
 print(X)
-# fig = plt.figure(1, figsize=(4, 3))
-# plt.clf()
-# plt.cla()
-pca = decomposition.PCA(
-    n_components=1,
-    svd_solver="arpack",
-    # whiten=True,
-    random_state=0,
-)
-pca.fit(X)
-X = pca.transform(X)
-X = [x[0] for x in X]
-X = [x / max([abs(max(X)), abs(min(X))]) for x in X]
-# X = sorted(X)
 
-print(X)
-plt.scatter(range(8 ** 2), X)
+x1 = 0
+y1 = 0
+x2 = 8
+y2 = 3
+X = [
+    [
+        (c[1] - y1 + x1 * (y2 - y1) / (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) / \
+        ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
+        0
+    ]
+    for c in X
+]
+X = [
+    [
+        c[0],
+        y1 + (y2 - y1) / (x2 - x1) * (c[0] - x1)
+    ]
+    for c in X
+]
+x = [c[0] for c in X]
+y = [c[1] for c in X]
+mean_x = sum(x) / len(x)
+mean_y = sum(y) / len(y)
+x = [2 * (mean_x - c) / (max(x) - min(x)) for c in x]
+y = [2 * (mean_y - c) / (max(y) - min(y)) for c in y]
+d = []
+for a in range(len(x)):
+    sign = 1. if x[a] >= 0. else -1.
+    d.append(sign * (x[a] ** 2 + y[a] ** 2))
+print(d)
+plt.scatter(x, y)
 plt.show()
