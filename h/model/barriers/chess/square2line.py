@@ -4,13 +4,13 @@ from sklearn import datasets, decomposition
 
 np.random.seed(0)
 
-X = [
+C = [
     [x, y]
     for x in range(1, 9)
     for y in range(1, 9)
     if x != 0 and y != 0
 ]
-print(X)
+print(C)
 
 x1 = 0
 y1 = 0
@@ -22,7 +22,7 @@ X = [
         ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
         0
     ]
-    for c in X
+    for c in C
 ]
 X = [
     [
@@ -40,7 +40,8 @@ y = [(mean_y - c) / (max(y) - min(y)) for c in y]
 d = []
 for a in range(len(x)):
     sign = 1. if x[a] >= 0. else -1.
-    d.append(2 * sign * (x[a] ** 2 + y[a] ** 2))
-print(sorted(d))
+    d.append([2 * sign * (x[a] ** 2 + y[a] ** 2), C[a][0], C[a][1]])
+result = sorted(d, key=lambda k: k[0])
+print(result)
 plt.scatter(x, y)
 plt.show()
