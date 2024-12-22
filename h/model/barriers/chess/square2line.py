@@ -1,14 +1,12 @@
 import matplotlib.pyplot as plt
 import numpy as np
-from sklearn import datasets, decomposition
 
 np.random.seed(0)
 
 C = [
     [x, y]
-    for x in range(1, 9)
-    for y in range(1, 9)
-    if x != 0 and y != 0
+    for x in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
+    for y in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
 ]
 print(C)
 
@@ -18,7 +16,7 @@ x2 = 8
 y2 = 3
 X = [
     [
-        (c[1] - y1 + x1 * (y2 - y1) / (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) / \
+        (c[1] - y1 + x1 * (y2 - y1) / (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) /
         ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
         0
     ]
