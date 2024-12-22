@@ -424,21 +424,22 @@ class Model:
                 inputs = self.get_input(state=board)
                 variable_values = {
                     f"x_{i}": inputs[i - 1]
-                    for i in range(self.len_input, 0, -1)
+                    for i in range(self.model_option["len_input"], 0, -1)
                 }
                 formula = str(formula0)[:]
                 # print(utils.ex_round(formula, 4))
                 for _var, _val in variable_values.items():
                     formula = str(formula).replace(_var, str(_val))
                 evaluate1 = eval(formula)
-                if score > evaluate1:
+                # print(move.uci(), evaluate1)
+                if evaluate1 > score:
                     bestmove = index
                     score = evaluate1
                 index += 1
                 board.pop()
             board.push(moves[bestmove])
             print(board)
-            print("")
+            print(score)
             if board.is_game_over():
                 break
             moves = list(board.legal_moves)
