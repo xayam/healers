@@ -18,16 +18,19 @@ class CPU:
         self.player = Player()
 
     def run(self):
-        count = 0
+        count = 1
+        calc = self.calc()
         while count <= 360:
-            amplitudes = self.calc()
+            print(f"{count}/360")
+            amplitudes = next(calc)
             self.player.play(amplitudes=amplitudes)
             count += 1
         self.player.save()
 
     def calc(self):
-        for x, y in self.function():
-            amplitudes = self.get()
+        generator = self.function()
+        for x, y in generator:
+            amplitudes = self.get(x, y)
             yield amplitudes
 
     def get(self, x=8.0, y=1.0):
@@ -62,9 +65,10 @@ class CPU:
             sign = 1. if x[a] >= 0. else -1.
             result.append(
                 # [
-                2 * sign * (x[a] ** 2 + y[a] ** 2)
+                128 + int(128 * sign * (x[a] ** 2 + y[a] ** 2))
                 #     ,
                 #     self.grid[a][0], self.grid[a][1]
                 # ]
             )
+        # print(result)
         return result

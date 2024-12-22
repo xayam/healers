@@ -16,10 +16,14 @@ class Generator:
 def main():
 
     def melody():
-        t = 0
+        t = 0.0
         while True:
-            yield math.sin(t), math.cos(t)
+            x = math.sin(t)
+            y = math.cos(t)
             t += math.pi / 180
+            if x == 0.0 or y == 0.0:
+                continue
+            yield x, y
 
     g = Generator(function=melody)
     g.start()

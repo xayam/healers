@@ -1,15 +1,20 @@
+import wave
 
 
 class Player:
 
     def __init__(self):
-        pass
+        self.wav = wave.open("test.wav", mode="w")
+        self.wav.setnchannels(1)
+        self.wav.setsampwidth(4)
+        self.wav.setframerate(16000)
 
     def play(self, amplitudes):
-        pass
+        data = bytes(amplitudes)
+        self.wav.writeframes(data)
 
     def save(self):
-        pass
+        self.wav.close()
 
 
 def main():
