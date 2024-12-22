@@ -65,8 +65,8 @@ class Model:
         self.stop = False
         self.random = random.SystemRandom(0)
         self.model_option = {
-            "len_input": 124 + 4,
-            "hidden_layers": [64, 32, 16, 8, 4, 2, 1],
+            "len_input": 64 * 12 + 4,
+            "hidden_layers": [68, 68, 68],
             "len_output": 1,
             "grid": 5,
             "k": 3,
@@ -166,10 +166,10 @@ class Model:
             result = self.model.fit(
                 self.dataset,
                 opt="LBFGS",
-                # loss_fn=torch.nn.,
+                # loss_fn=self.loss_fn,
                 lamb=0.001,
-                steps=2,
-                update_grid=True,
+                steps=5,
+                update_grid=False,
                 metrics=(
                      self.train_acc,
                      self.test_acc
@@ -190,6 +190,8 @@ class Model:
         moves = list(state.legal_moves)
         best_move = None
         best_value = - 10 ** 10
+        result_scores = []
+        result_moves = []
         for move in moves:
             state.push(move)
             inputs = torch.FloatTensor(
@@ -198,10 +200,16 @@ class Model:
             score = self.model(inputs).detach().tolist()[0][0]
             print(state)
             print(score)
-            if score > best_value:
-                best_value = score
-                best_move = move
+            result_scores.append(score)
+            result_moves.append(move)
             state.pop()
+        mean_score = sum(result_scores) / len(result_scores)
+        delta = 10 ** 10
+        best_move = None
+        for score in range(len(result_scores)):
+            if abs(result_scores[score] - mean_score) < delta:
+                delta = abs(result_scores[score] - mean_score)
+                best_move = result_moves[score]
         return best_move
 
     def get_data(self, nums=1000, epoch=1000):
@@ -210,11 +218,8 @@ class Model:
         board = chess.Board()
         for num in range(nums):
             result = 0.
-            if board.turn == chess.BLACK:
-                board = board.mirror()
             board_copy = board.copy()
             inputs = self.get_input(board)
-            count_draw = 0
             for ep in range(epoch):
                 while not board_copy.is_game_over():
                     moves = list(board_copy.legal_moves)
@@ -223,14 +228,12 @@ class Model:
                     board_copy.push(best_move)
                 if board_copy.result() == "1-0":
                     result += 1.
-                elif board_copy.result() == "1/2-1/2":
-                    result += 0.
-                    count_draw += 1
+                elif board_copy.result() == "0-1":
+                    result += - 1.
                 else:
-                    result += 0.
+                    result += .001
             result_train.append(inputs)
-            label = result / (epoch - count_draw) \
-                if epoch != count_draw else result / epoch
+            label = result / epoch
             result_label.append(label)
             if board.is_game_over():
                 board = chess.Board()
@@ -304,41 +307,41 @@ class Model:
             # grid1 = self.random.choice(list(range(5, 51)))
             # k1 = self.random.choice(list(range(3, 26)))
 
+    def loss_fn(self, x, y):
+        return torch.max(torch.abs(x - y))
+
     def train_acc(self):
         return torch.mean(
-            (torch.round(self.model(self.dataset['train_input'])) ==
-             self.dataset['train_label']).type(self.dtype)
+            torch.abs(
+                    self.model(self.dataset['train_input']) -
+                    self.dataset['train_label']
+            ).type(self.dtype)
         )
 
     def test_acc(self):
         return torch.mean(
-            (torch.round(self.model(self.dataset['test_input'])) ==
-             self.dataset['test_label']).type(self.dtype)
+            torch.abs(
+                    self.model(self.dataset['test_input']) -
+                    self.dataset['test_label']
+            ).type(self.dtype)
         )
 
     @staticmethod
     def get_input(state):
-        train_input = [0. for _ in range(124)]
-        # material = [1., 3.5, 3.5, 5., 9., 41.]
-        # material[state.piece_type_at(move.from_square) - 1] * \
-        moves = list(state.legal_moves)
-        color = 1. if state.turn == chess.WHITE else 1.
-        index = 0
-        for move in moves:
-            from_square = color * \
-                math.sin(
-                    2 * math.pi *
-                    (move.from_square // 8 + 1) +
-                    math.pi / 8 * (move.from_square % 8 + 1)
-                )
-            to_square = color * \
-                math.sin(
-                    2 * math.pi *
-                    (move.to_square // 8 + 1) +
-                    math.pi / 8 * (move.to_square % 8 + 1)
-                )
-            train_input[index] = to_square / from_square
-            index += 1
+        train_input = [[0.] * 64 for _ in range(12)]
+        for piece in chess.PIECE_TYPES:
+            for square in state.pieces(piece, chess.BLACK):
+                train_input[piece - 1][square] = -piece
+                for move in state.pseudo_legal_moves:
+                    if move.from_square == square:
+                        train_input[piece - 1][move.to_square] = -piece
+        for piece in chess.PIECE_TYPES:
+            for square in state.pieces(piece, chess.WHITE):
+                train_input[piece + 5][square] = piece
+                for move in state.pseudo_legal_moves:
+                    if move.from_square == square:
+                        train_input[piece + 5][move.to_square] = piece
+        train_input = [j for i in train_input for j in i]
         if state.has_kingside_castling_rights(state.turn):
             train_input = [1.] + train_input
         else:
@@ -359,7 +362,7 @@ class Model:
         count_win = 0
         count_draw = 0
         count_loss = 0
-        for _ in range(5):
+        for _ in range(1):
             board = chess.Board()
             while not board.is_game_over():
                 best_move = self.get_best(board)
@@ -368,7 +371,6 @@ class Model:
                 print("")
                 if board.is_game_over():
                     break
-                board = board.mirror()
                 moves = list(board.legal_moves)
                 best_move = self.random.choice(moves)
                 board.push(best_move)
@@ -378,7 +380,6 @@ class Model:
                     f"count_loss={count_loss}, count_draw={count_draw}"
                 )
                 print("")
-                board = board.mirror()
             if board.result() == "1-0":
                 count_win += 1
             elif board.result() == "0-1":
