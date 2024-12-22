@@ -1,6 +1,7 @@
 import json
 import math
 import os.path
+import sys
 
 import torch.nn
 
@@ -66,7 +67,7 @@ class Model:
         self.random = random.SystemRandom(0)
         self.model_option = {
             "len_input": 64 * 12 + 4,
-            "hidden_layers": [68, 68, 68],
+            "hidden_layers": [5, 5, 5],
             "len_output": 1,
             "grid": 5,
             "k": 3,
@@ -203,7 +204,26 @@ class Model:
             result_scores.append(score)
             result_moves.append(move)
             state.pop()
-        mean_score = sum(result_scores) / len(result_scores)
+        ##################
+        # valid = []
+        # valid_count = 0
+        # for score in range(len(result_scores)):
+        #     count = result_scores.count(result_scores[score])
+        #     if count == 1:
+        #         valid_count += 1
+        #         valid.append(result_scores[score])
+        #     else:
+        #         valid.append(0)
+        # result = []
+        # for score in range(len(result_scores)):
+        #     result.append([
+        #         str(result_scores[score])[2:].ljust(18, "0"),
+        #         result_moves[score].uci()
+        #     ])
+        #     print(result[-1][0], result[-1][1])
+        # sys.exit()
+        ##################
+        mean_score = max(result_scores)  # / len(result_scores)
         delta = 10 ** 10
         best_move = None
         for score in range(len(result_scores)):
