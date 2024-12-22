@@ -18,8 +18,8 @@ def main():
     def melody():
         t = 0.0
         while True:
-            x = math.sin(t)
-            y = math.cos(t)
+            x = math.sin(1 * t)
+            y = math.sin(2 * t)
             t += math.pi / 180
             if x == 0.0 or y == 0.0:
                 continue
