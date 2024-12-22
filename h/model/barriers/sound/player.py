@@ -1,10 +1,13 @@
 import wave
+import pygame
 
+pygame.mixer.init()
 
 class Player:
 
     def __init__(self):
-        self.wav = wave.open("test.wav", mode="w")
+        self.filename = "test.wav"
+        self.wav = wave.open(self.filename, mode="w")
         self.wav.setnchannels(1)
         self.wav.setsampwidth(4)
         self.wav.setframerate(16000)
@@ -15,6 +18,10 @@ class Player:
 
     def save(self):
         self.wav.close()
+        pygame.mixer.music.load(self.filename)
+        pygame.mixer.music.play()
+        while pygame.mixer.music.get_busy():
+            pass
 
 
 def main():

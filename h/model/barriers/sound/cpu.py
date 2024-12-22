@@ -1,3 +1,6 @@
+import sys
+
+import chess
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -20,8 +23,8 @@ class CPU:
     def run(self):
         count = 1
         calc = self.calc()
-        while count <= 360:
-            print(f"{count}/360")
+        while count <= 5000:
+            print(f"{count}/5000")
             amplitudes = next(calc)
             self.player.play(amplitudes=amplitudes)
             count += 1
@@ -61,14 +64,22 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
+        board = chess.Board()
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
-            result.append(
-                # [
-                128 + int(128 * sign * (x[a] ** 2 + y[a] ** 2))
-                #     ,
-                #     self.grid[a][0], self.grid[a][1]
-                # ]
-            )
-        # print(result)
+            piece = board.piece_at(a)
+            if piece is None:
+                result.append(0)
+            else:
+                result.append(
+                    # [
+                    128 + int(
+                        128 * sign * (x[a] ** 2 + y[a] ** 2) /
+                        piece.piece_type / 6
+                    )
+                    #     ,
+                    #     self.grid[a][0], self.grid[a][1]
+                    # ]
+                )
+        # sys.exit()
         return result
