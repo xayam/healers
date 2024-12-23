@@ -9,11 +9,11 @@ class Generator:
         self.cpu = CPU(function=self.melody)
 
     def melody(self):
-        t = 0.0
+        t = -1.0
         while True:
             x = math.sin(9 * t + math.pi / 2)
             y = math.sin(8 * t)
-            t += 1 / self.cpu.count
+            t += 2 / self.cpu.count
             if x == 0.0 or y == 0.0 or x == y:
                 continue
             yield x, y

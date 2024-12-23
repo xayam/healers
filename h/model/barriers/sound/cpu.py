@@ -14,7 +14,7 @@ class CPU:
 
     def __init__(self, function):
         self.function = function
-        self.count = 180  # 432 # * 2 ** 3
+        self.count = 360  # 432 # * 2 ** 3
         self.delta = 360
         self.maximum = self.count
         self.grid = [
