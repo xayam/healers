@@ -14,8 +14,7 @@ class CPU:
 
     def __init__(self, function):
         self.function = function
-        self.count = 360  # 432 # * 2 ** 3
-        self.delta = 360
+        self.count = 90  # 432 * 2 ** 3
         self.maximum = self.count
         self.grid = [
             [i, j]
@@ -88,9 +87,9 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        moves = list(self.board.legal_moves)
-        move = self.random.choice(moves)
-        self.board.push(move)
+        # moves = list(self.board.legal_moves)
+        # move = self.random.choice(moves)
+        # self.board.push(move)
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
