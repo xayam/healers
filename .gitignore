@@ -8,5 +8,6 @@ __pycache__/
 h/model/history/
 h/mvp/history/
 h/model/barriers/chess/history/
+h/model/barriers/square/frames/
 h/player/history
 tesifaz.spec
