@@ -37,9 +37,9 @@ for j in range(2):
             )
         filename = f"frames/{j}{str(i).rjust(3, '0')}.png"
         utils_progress(filename)
+        images[-1].save(filename, format="PNG")
         if i % 32 != 0:
             _ = images.pop()
-# images.save(filename, format="PNG")
 images[0].save(
     "square2animation.gif",
     save_all=True,
