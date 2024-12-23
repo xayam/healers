@@ -5,6 +5,7 @@ import chess
 import numpy as np
 
 from h.model.barriers.sound.player import Player
+from h.model.utils import utils_progress
 
 np.random.seed(0)
 
@@ -13,7 +14,8 @@ class CPU:
 
     def __init__(self, function):
         self.function = function
-        self.count = 50000
+        self.count = 180  # 432 # * 2 ** 3
+        self.delta = 360
         self.maximum = self.count
         self.grid = [
             [i, j]
@@ -24,22 +26,26 @@ class CPU:
         self.random = random.SystemRandom(0)
         self.fens = self.get_fen_epd(count_limit=self.count)
         self.board = chess.Board()
+        self.board.set_fen(fen=self.fens[self.count - 1])
         self.player = Player()
 
     def run(self):
-        calc = self.calc()
         while self.count > 0:
-            print(f"{self.count}/{self.maximum}")
-            amplitudes = next(calc)
+            utils_progress(f"{self.maximum - self.count + 1}/{self.maximum}")
+            amplitudes = self.calc()
             self.player.play(amplitudes=amplitudes)
             self.count -= 1
         self.player.save()
 
     def calc(self):
+        amplitudes = []
         generator = self.function()
-        for x, y in generator:
-            amplitudes = self.get(x, y)
-            yield amplitudes
+        for _ in range(self.count):
+            if self.board.is_game_over():
+                self.board.set_fen(self.fens[self.count - 1])
+            x, y = next(generator)
+            amplitudes += self.get(x, y)
+        return amplitudes
 
     def get_fen_epd(self, count_limit=1):
         with open(self.epd_eval, mode="r") as f:
@@ -57,6 +63,8 @@ class CPU:
         y1 = 0.0
         x2 = x
         y2 = y
+        # print("")
+        # print(x, y)
         X = [
             [
                 (c[1] - y1 + x1 * (y2 - y1) / (x2 - x1) - c[0] * (x2 - x1) / (
@@ -80,7 +88,9 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        self.board.set_fen(fen=self.fens[self.count - 1])
+        # moves = list(self.board.legal_moves)
+        # move = self.random.choice(moves)
+        # self.board.push(move)
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
@@ -89,13 +99,12 @@ class CPU:
             else:
                 result.append(
                     # [
-                    128 + int(
-                        128 * sign * (x[a] ** 2 + y[a] ** 2) /
+                    128 + round(
+                        128.0 * sign * (x[a] ** 2 + y[a] ** 2) /
                         piece.piece_type / 6
                     )
                     #     ,
                     #     self.grid[a][0], self.grid[a][1]
                     # ]
                 )
-        # print(fen)
         return result

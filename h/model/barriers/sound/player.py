@@ -13,6 +13,7 @@ class Player:
         self.wav.setframerate(16000)
 
     def play(self, amplitudes):
+        # print(amplitudes)
         data = bytes(amplitudes)
         self.wav.writeframes(data)
 
