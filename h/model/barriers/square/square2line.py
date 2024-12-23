@@ -3,6 +3,7 @@ import numpy as np
 
 np.random.seed(0)
 
+
 def get_distances(x, y):
     C = [
         [i, j]
