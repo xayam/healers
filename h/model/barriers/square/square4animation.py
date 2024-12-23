@@ -1,8 +1,9 @@
 from PIL import Image, ImageDraw, ImageFont
 
-from h.model.barriers.square.square2line import get_distances
+from h.model.barriers.square.square1line import Square1Line
 from h.model.utils import utils_progress
 
+square1line = Square1Line()
 width = 1025
 height = 513
 angles = [(0, 0), (0, height-1), (width-1, height-1), (width-1, 0)]
@@ -24,16 +25,23 @@ for j in range(2):
         if j == 0:
             draw.line(xy=[(512, i), (1, 512 - i)],
                       fill="red", width=2)
-            dists = get_distances(x=256, y=i - 256 + 0.01)
+            dists = square1line.get_distances(
+                x=256, y=i - 256 + 0.01
+            )
         else:
             draw.line(xy=[(512 - i, 512), (i, 1)],
                       fill="red", width=2)
-            dists = get_distances(x=256 - i + 0.01, y=256)
+            dists = square1line.get_distances(
+                x=256 - i + 0.01, y=256
+            )
         # print(dists)
         for xx, aa, bb in dists:
+            _xx = 512 + round((2 * xx + 1) / 2 * 512)
+            _aa = round(64 * (aa + 3.5))
+            _bb = round(64 * (bb + 3.5))
             draw.line(
-                xy=[(xx, 0), (xx, 512)],
-                fill=(64 + aa//4, 64 + bb//4, 64 + aa//4),
+                xy=[(_xx, 0), (_xx, 512)],
+                fill=(64 + _aa//4, 64 + _bb//4, 64 + _aa//4),
                 width=2
             )
         filename = f"frames/{j}{str(i).rjust(3, '0')}.png"
