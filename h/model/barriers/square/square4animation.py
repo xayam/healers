@@ -79,7 +79,7 @@ for i in range(0, 513):
                 xy=(_xx, _yy),
                 fill=(_rb, _g, _rb),
             )
-    filename = f"square4animation/{str(i).rjust(3, '0')}.png"
+    filename = f"frames4animation/{str(i).rjust(3, '0')}.png"
     utils_progress(filename)
     images[-1].save(filename, format="PNG")
     # if i % 32 != 0:
