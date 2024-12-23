@@ -42,8 +42,14 @@ class CPU:
         for _ in range(2 * self.maximum):
             # if self.board.is_game_over():
             self.board.set_fen(self.fens[self.count - 1])
-            x, y = next(generator)
-            amplitudes += self.get_amps(x, y)
+            # moves = list(self.board.legal_moves)
+            # move = self.random.choice(moves)
+            # self.board.push(move)
+
+            # x, y = next(generator)
+            amplitudes += self.get_amps(
+                # x,y
+            )
         return amplitudes
 
     def get_fens(self, count_limit=1):
@@ -87,9 +93,6 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        # moves = list(self.board.legal_moves)
-        # move = self.random.choice(moves)
-        # self.board.push(move)
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
