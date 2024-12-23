@@ -1,3 +1,5 @@
+import sys
+
 import matplotlib.pyplot as plt
 import numpy as np
 
@@ -7,27 +9,33 @@ np.random.seed(0)
 class Square1Line:
 
     def __init__(self):
-        self.grid_8x8 = None
-        self.grid_512x512 = None
+        self.grid = {8: [], 64: [], 4096: []}
         self.init()
 
     def init(self):
-        self.grid_8x8 = [
-            [i, j]
-            for i in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
-            for j in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
-        ]
-        self.grid_512x512 = []
-        x = -255.5
-        y = -255.5
-        for i in range(512):
-            for j in range(512):
-                self.grid_512x512.append([x, y])
-                y += 1
-            x += 1
+        for grid in self.grid:
+            x = 0.5 - grid // 2
+            for _ in range(grid):
+                y = 0.5 - grid // 2
+                for _ in range(grid):
+                    self.grid[grid].append([x, y])
+                    y += 1
+                x += 1
+
+    @staticmethod
+    def dim1_to_dim2(data):
+        # print(data)
+        size = int(len(data) ** 0.5)
+        # print(size)
+        result = [[0. for _ in range(size)] for _ in range(size)]
+        for distance, x, y in data:
+            result[int(x + size // 2 - 0.5)][int(y + size // 2 - 0.5)] = distance
+        return result
 
     def get_distances(self, x, y, grid=None):
-        grid = self.grid_8x8 if grid is None else grid
+        grid = self.grid[8] if grid is None else grid
+        if x == 0. or y == 0. or x == y:
+            return None
         x1 = 0.0
         y1 = 0.0
         x2 = x
@@ -59,7 +67,8 @@ class Square1Line:
             sign = 1. if x[a] >= 0. else -1.
             d.append([sign * (x[a] ** 2 + y[a] ** 2),
                       grid[a][0], grid[a][1]])
-        result = sorted(d, key=lambda k: k[0])
+        result = d
+        # result = sorted(d, key=lambda k: k[0])
         # print(result)
         # plt.scatter(x, y)
         # plt.show()

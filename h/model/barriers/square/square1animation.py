@@ -1,3 +1,5 @@
+import sys
+
 from PIL import Image, ImageDraw, ImageFont
 
 from h.model.barriers.square.square1line import Square1Line
@@ -34,7 +36,6 @@ for j in range(2):
             dists = square1line.get_distances(
                 x=256 - i + 0.01, y=256
             )
-        # print(dists)
         for xx, aa, bb in dists:
             _xx = 512 + round((2 * xx + 1) / 2 * 512)
             _aa = round(64 * (aa + 3.5))
