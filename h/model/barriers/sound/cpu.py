@@ -1,4 +1,5 @@
 import random
+import sys
 
 import chess
 # import matplotlib.pyplot as plt
@@ -82,6 +83,8 @@ class CPU:
         ]
         x = [c[0] for c in X]
         y = [c[1] for c in X]
+        # print(max(x), min(x), max(y), min(y))
+        # sys.exit()
         mean_x = sum(x) / len(x)
         mean_y = sum(y) / len(y)
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
@@ -91,18 +94,18 @@ class CPU:
         # move = self.random.choice(moves)
         # self.board.push(move)
         for a in range(len(x)):
-            sign = 1. if x[a] >= 0. else -1.
+            sign = 1.0 if x[a] >= 0.0 else -1.0
             piece = self.board.piece_at(a)
             if piece is None:
                 result.append(0)
             else:
                 result.append(
                     # [
-                    # 128 +
+                    128 +
                     round(
-                        # 128.0 * sign * (x[a] ** 2 + y[a] ** 2) /
-                        piece.piece_type * 255 / 6
-                    )
+                        128 * sign * (x[a] ** 2 + y[a] ** 2) *
+                        piece.piece_type / 6
+                    ) - 1
                     #     ,
                     #     self.grid[a][0], self.grid[a][1]
                     # ]
