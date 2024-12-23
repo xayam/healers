@@ -26,7 +26,7 @@ class Player:
 
 def main():
     p = Player()
-    p.play(amplitudes=[-3.5, 5.0, 1.0, -2.0])
+    p.play(amplitudes=[0, 5, 1, 2])
 
 
 if __name__ == "__main__":

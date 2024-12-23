@@ -1,7 +1,7 @@
-import sys
+import random
 
 import chess
-import matplotlib.pyplot as plt
+# import matplotlib.pyplot as plt
 import numpy as np
 
 from h.model.barriers.sound.player import Player
@@ -11,23 +11,27 @@ np.random.seed(0)
 
 class CPU:
 
-    def __init__(self, function, grid=8):
+    def __init__(self, function):
         self.function = function
+        self.count = 500
         self.grid = [
             [i, j]
             for i in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
             for j in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
         ]
+        self.epd_eval = "../chess/dataset.epdeval"
+        self.random = random.SystemRandom(0)
+        self.fens = self.get_fen_epd(count_limit=self.count + 1)
+        self.board = chess.Board()
         self.player = Player()
 
     def run(self):
-        count = 1
         calc = self.calc()
-        while count <= 5000:
-            print(f"{count}/5000")
+        while self.count >= 0:
+            print(f"{self.count}")
             amplitudes = next(calc)
             self.player.play(amplitudes=amplitudes)
-            count += 1
+            self.count -= 1
         self.player.save()
 
     def calc(self):
@@ -35,6 +39,17 @@ class CPU:
         for x, y in generator:
             amplitudes = self.get(x, y)
             yield amplitudes
+
+    def get_fen_epd(self, count_limit=1):
+        with open(self.epd_eval, mode="r") as f:
+            dataevals = f.readlines()
+        fens = []
+        for _ in range(count_limit):
+            dataeval = str(self.random.choice(dataevals)).strip()
+            spl = dataeval.split(" ")
+            fen = " ".join(spl[:-1])
+            fens.append(fen)
+        return fens
 
     def get(self, x=8.0, y=1.0):
         x1 = 0.0
@@ -64,10 +79,10 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        board = chess.Board()
+        self.board.set_fen(fen=self.fens[self.count])
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
-            piece = board.piece_at(a)
+            piece = self.board.piece_at(a)
             if piece is None:
                 result.append(0)
             else:
@@ -81,5 +96,5 @@ class CPU:
                     #     self.grid[a][0], self.grid[a][1]
                     # ]
                 )
-        # sys.exit()
+        # print(fen)
         return result
