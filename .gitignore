@@ -9,6 +9,7 @@ h/model/history/
 h/mvp/history/
 h/model/barriers/chess/history/
 h/model/barriers/square/frames1animation/
+h/model/barriers/square/frames4animation/
 h/player/history
 h/model/barriers/sound/test.wav
 tesifaz.spec

@@ -44,13 +44,13 @@ for j in range(2):
                 fill=(64 + _aa//4, 64 + _bb//4, 64 + _aa//4),
                 width=2
             )
-        filename = f"frames/{j}{str(i).rjust(3, '0')}.png"
+        filename = f"square4animation/{j}{str(i).rjust(3, '0')}.png"
         utils_progress(filename)
         images[-1].save(filename, format="PNG")
         if i % 32 != 0:
             _ = images.pop()
 images[0].save(
-    "square2animation.gif",
+    "square4animation.gif",
     save_all=True,
     append_images=images[1:], duration=3000, loop=0
 )
