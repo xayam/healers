@@ -13,7 +13,10 @@ class Generator:
         while True:
             x = math.sin(9 * t + math.pi / 2)
             y = math.sin(8 * t)
-            t += 2 / self.cpu.count
+            if t >= 1.0:
+                t -= 2 / self.cpu.maximum
+            else:
+                t += 2 / self.cpu.maximum
             if x == 0.0 or y == 0.0 or x == y:
                 continue
             yield x, y

@@ -24,7 +24,7 @@ class CPU:
         ]
         self.epd_eval = "../chess/dataset.epdeval"
         self.random = random.SystemRandom(0)
-        self.fens = self.get_fen_epd(count_limit=self.count)
+        self.fens = self.get_fens(count_limit=self.count)
         self.board = chess.Board()
         self.board.set_fen(fen=self.fens[self.count - 1])
         self.player = Player()
@@ -40,14 +40,14 @@ class CPU:
     def calc(self):
         amplitudes = []
         generator = self.function()
-        for _ in range(self.count):
-            if self.board.is_game_over():
-                self.board.set_fen(self.fens[self.count - 1])
+        for _ in range(2 * self.maximum):
+            # if self.board.is_game_over():
+            self.board.set_fen(self.fens[self.count - 1])
             x, y = next(generator)
-            amplitudes += self.get(x, y)
+            amplitudes += self.get_amps(x, y)
         return amplitudes
 
-    def get_fen_epd(self, count_limit=1):
+    def get_fens(self, count_limit=1):
         with open(self.epd_eval, mode="r") as f:
             dataevals = f.readlines()
         fens = []
@@ -58,7 +58,7 @@ class CPU:
             fens.append(fen)
         return fens
 
-    def get(self, x=8.0, y=1.0):
+    def get_amps(self, x=8.0, y=1.0):
         x1 = 0.0
         y1 = 0.0
         x2 = x
@@ -88,9 +88,9 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        # moves = list(self.board.legal_moves)
-        # move = self.random.choice(moves)
-        # self.board.push(move)
+        moves = list(self.board.legal_moves)
+        move = self.random.choice(moves)
+        self.board.push(move)
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
@@ -99,9 +99,10 @@ class CPU:
             else:
                 result.append(
                     # [
-                    128 + round(
-                        128.0 * sign * (x[a] ** 2 + y[a] ** 2) /
-                        piece.piece_type / 6
+                    # 128 +
+                    round(
+                        # 128.0 * sign * (x[a] ** 2 + y[a] ** 2) /
+                        piece.piece_type * 255 / 6
                     )
                     #     ,
                     #     self.grid[a][0], self.grid[a][1]
