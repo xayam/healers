@@ -13,7 +13,8 @@ class CPU:
 
     def __init__(self, function):
         self.function = function
-        self.count = 500
+        self.count = 50000
+        self.maximum = self.count
         self.grid = [
             [i, j]
             for i in [-3.5, -2.5, -1.5, -0.5, 0.5, 1.5, 2.5, 3.5]
@@ -21,14 +22,14 @@ class CPU:
         ]
         self.epd_eval = "../chess/dataset.epdeval"
         self.random = random.SystemRandom(0)
-        self.fens = self.get_fen_epd(count_limit=self.count + 1)
+        self.fens = self.get_fen_epd(count_limit=self.count)
         self.board = chess.Board()
         self.player = Player()
 
     def run(self):
         calc = self.calc()
-        while self.count >= 0:
-            print(f"{self.count}")
+        while self.count > 0:
+            print(f"{self.count}/{self.maximum}")
             amplitudes = next(calc)
             self.player.play(amplitudes=amplitudes)
             self.count -= 1
@@ -79,7 +80,7 @@ class CPU:
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
-        self.board.set_fen(fen=self.fens[self.count])
+        self.board.set_fen(fen=self.fens[self.count - 1])
         for a in range(len(x)):
             sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
