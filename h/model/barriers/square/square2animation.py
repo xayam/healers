@@ -1,6 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-import random
-import math
 
 from h.model.barriers.square.square2line import get_distances
 from h.model.utils import utils_progress
