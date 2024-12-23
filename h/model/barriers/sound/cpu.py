@@ -14,7 +14,7 @@ class CPU:
 
     def __init__(self, function):
         self.function = function
-        self.count = 90  # 432 * 2 ** 3
+        self.count = 45  # 432 * 2 ** 3
         self.maximum = self.count
         self.grid = [
             [i, j]
@@ -40,11 +40,11 @@ class CPU:
         amplitudes = []
         generator = self.function()
         for _ in range(2 * self.maximum):
-            if self.board.is_game_over():
-                self.board.set_fen(self.fens[self.count - 1])
-            moves = list(self.board.legal_moves)
-            move = self.random.choice(moves)
-            self.board.push(move)
+            # if self.board.is_game_over():
+            self.board.set_fen(self.fens[self.count - 1])
+            # moves = list(self.board.legal_moves)
+            # move = self.random.choice(moves)
+            # self.board.push(move)
             x, y = next(generator)
             amplitudes += self.get_amps(
                 x, y
@@ -101,7 +101,8 @@ class CPU:
                     128 +
                     round(
                         (x[a] ** 2 + y[a] ** 2) *
-                        sign * piece.piece_type * 127 / 6
+                        # piece.piece_type / 6
+                        127 * sign
                     )
                     #     ,
                     #     self.grid[a][0], self.grid[a][1]

@@ -13,7 +13,7 @@ class Generator:
         while True:
             a = self.cpu.random.choice(list(range(1, 100)))
             b = self.cpu.random.choice(list(range(1, 100)))
-            x = a * math.sin(8 * t + math.pi / 2)
+            x = a * math.sin(1 * t + math.pi / 2)
             y = b * math.sin(1 * t)
             # if t >= 1.0:
             #     t -= 2 / self.cpu.maximum
