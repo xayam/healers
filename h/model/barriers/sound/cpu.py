@@ -46,9 +46,9 @@ class CPU:
             # move = self.random.choice(moves)
             # self.board.push(move)
 
-            # x, y = next(generator)
+            x, y = next(generator)
             amplitudes += self.get_amps(
-                # x,y
+                x,y
             )
         return amplitudes
 
@@ -68,8 +68,6 @@ class CPU:
         y1 = 0.0
         x2 = x
         y2 = y
-        # print("")
-        # print(x, y)
         X = [
             [
                 (c[1] - y1 + x1 * (y2 - y1) / (x2 - x1) - c[0] * (x2 - x1) / (
@@ -94,17 +92,17 @@ class CPU:
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         result = []
         for a in range(len(x)):
-            sign = 1. if x[a] >= 0. else -1.
             piece = self.board.piece_at(a)
             if piece is None:
                 result.append(0)
             else:
+                sign = 1. if piece.color == chess.WHITE else -1.
                 result.append(
                     # [
-                    # 128 +
+                    128 +
                     round(
-                        # 128.0 * sign * (x[a] ** 2 + y[a] ** 2) /
-                        piece.piece_type * 255 / 6
+                        (x[a] ** 2 + y[a] ** 2) *
+                        sign * piece.piece_type * 127 / 6
                     )
                     #     ,
                     #     self.grid[a][0], self.grid[a][1]
