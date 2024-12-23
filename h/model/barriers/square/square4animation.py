@@ -11,7 +11,9 @@ height = 513
 angles = [(0, 0), (0, height-1), (width-1, height-1), (width-1, 0)]
 font = ImageFont.truetype(font="arial.ttf", size=32)
 images = []
-for i in range(1, 513):
+for i in range(0, 513):
+    if i % 32 != 0:
+        continue
     images.append(Image.new(mode="RGBA", size=(width, height),
                             color=(255, 255, 255)))
     draw = ImageDraw.Draw(images[-1])
@@ -47,7 +49,7 @@ for i in range(1, 513):
     dists2 = square1line.dim1_to_dim2(dists2)
     dists3 = square1line.dim1_to_dim2(dists3)
     dists4 = square1line.dim1_to_dim2(dists4)
-
+    k = 0
     for i1 in range(len(dists1)):
         distances1 = square1line.get_distances(
             x=dists1[i1][0], y=dists2[i1][0], grid=square1line.grid[64]
@@ -55,34 +57,33 @@ for i in range(1, 513):
         if distances1 is None:
             continue
         distances1 = square1line.dim1_to_dim2(distances1)
-        for i2 in range(len(dists3)):
-            distances2 = square1line.get_distances(
-                x=dists3[i2][0], y=dists4[i2][0], grid=square1line.grid[64]
+        distances1 = square1line.dim2_to_dim1(distances1)
+
+        # print("distances1")
+        distances2 = square1line.get_distances(
+            x=dists3[i1][0], y=dists4[i1][0], grid=square1line.grid[64]
+        )
+        if distances2 is None:
+            continue
+        distances2 = square1line.dim1_to_dim2(distances2)
+        distances2 = square1line.dim2_to_dim1(distances2)
+        # print(distances1)
+        for index in range(len(distances1)):
+            k += 1
+            utils_progress(f"{i}/512 | {k}/{2 ** 15}")
+            _rb = index % 256
+            _g = index // 256
+            _xx = round(512 + round(256 * (2 * distances1[index] + 1)))
+            _yy = round(round(256 * (2 * distances2[index] + 1)))
+            draw.point(
+                xy=(_xx, _yy),
+                fill=(_rb, _g, _rb),
             )
-            if distances2 is None:
-                continue
-            distances2 = square1line.dim1_to_dim2(distances2)
-            for i3 in range(len(distances1)):
-                distances = square1line.get_distances(
-                    x=distances1[i3][0], y=distances2[i3][0],
-                    grid=square1line.grid[64]
-                )
-                if distances is None:
-                    continue
-                for xx, aa, bb in distances:
-                    c = round((2 * xx + 1) / 2 * 256) - 1
-                    x = round(64 * (aa + 3.5))
-                    y = round(64 * (bb + 3.5))
-                    draw.point(
-                        xy=(x, y),
-                        fill=(c, c, c),
-                    )
     filename = f"square4animation/{str(i).rjust(3, '0')}.png"
     utils_progress(filename)
-    images[-1].save("test.png", format="PNG")
-    break
-    if i % 32 != 0:
-        _ = images.pop()
+    images[-1].save(filename, format="PNG")
+    # if i % 32 != 0:
+    #     _ = images.pop()
 images[0].save(
     "square4animation.gif",
     save_all=True,

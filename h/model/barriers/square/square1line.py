@@ -32,23 +32,38 @@ class Square1Line:
             result[int(x + size // 2 - 0.5)][int(y + size // 2 - 0.5)] = distance
         return result
 
+    @staticmethod
+    def dim2_to_dim1(data):
+        result = []
+        for i in range(len(data)):
+            for j in range(len(data[i])):
+                result.append(data[i][j])
+        result_mean = sum(result) / len(result)
+        result = np.asarray(result)
+        result = (result_mean - result) / (max(result) - min(result))
+        return result.tolist()
+
     def get_distances(self, x, y, grid=None):
         grid = self.grid[8] if grid is None else grid
-        if x == 0. or y == 0. or x == y:
+        if x == 0. or y == 0. or abs(x) == abs(y):
             return None
         x1 = 0.0
         y1 = 0.0
         x2 = x
         y2 = y
-        X = [
-            [
-                (c[1] - y1 + x1 * (y2 - y1) /
-                 (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) /
-                ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
-                0
+        try:
+            X = [
+                [
+                    (c[1] - y1 + x1 * (y2 - y1) /
+                     (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) /
+                    ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
+                    0
+                ]
+                for c in grid
             ]
-            for c in grid
-        ]
+        except:
+            print(x, y)
+            raise
         X = [
             [
                 c[0],
