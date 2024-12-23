@@ -10,7 +10,7 @@ class Player:
         self.wav = wave.open(self.filename, mode="w")
         self.wav.setnchannels(1)
         self.wav.setsampwidth(4)
-        self.wav.setframerate(16000)
+        self.wav.setframerate(8000)
 
     def play(self, amplitudes):
         # print(amplitudes)
