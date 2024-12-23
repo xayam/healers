@@ -24,10 +24,11 @@ for j in range(2):
         if j == 0:
             draw.line(xy=[(512, i), (1, 512 - i)],
                       fill="red", width=2)
+            dists = get_distances(x=256, y=256 - i + 0.01)
         else:
             draw.line(xy=[(512 - i, 512), (i, 1)],
                       fill="red", width=2)
-        dists = get_distances(2 * i - 512 + 0.01, -512)
+            dists = get_distances(x=256 - i + 0.01, y=256)
         # print(dists)
         for xx, aa, bb in dists:
             draw.line(
