@@ -19,6 +19,14 @@ for j in range(2):
         frames.append(frame)
         canvas = ImageDraw.Draw(frames[-1])
         filename = f"frames1animation/{j}{str(i).rjust(3, '0')}.png"
+        square = [
+            [(height, i), (0, height - i)],
+            [(height - i, height), (i, 1)]
+        ]
+        coordinates = [
+            [256.0, i - 256.0],
+            [256.0 - i, 256.0]
+        ]
         for x in range(0, height, 64):
             for y in range(0, height, 64):
                 canvas.rectangle(
@@ -33,30 +41,17 @@ for j in range(2):
                     font=font,
                     fill="black"
                 )
-        if j == 0:
-            canvas.line(
-                xy=[(height, i), (0, height - i)],
-                fill="red",
-                width=2
-            )
-            distance = square1line.get_distances(
-                x1=0.0,
-                y1=0.0,
-                x2=256.0,
-                y2=i - 256.0
-            )
-        else:
-            canvas.line(
-                xy=[(height - i, height), (i, 1)],
-                fill="red",
-                width=2
-            )
-            distance = square1line.get_distances(
-                x1=0.0,
-                y1=0.0,
-                x2=256.0 - i,
-                y2=256.0
-            )
+        canvas.line(
+            xy=square[j],
+            fill="red",
+            width=2
+        )
+        distance = square1line.get_distances(
+            x1=0.0,
+            y1=0.0,
+            x2=coordinates[j][0],
+            y2=coordinates[j][1]
+        )
         if distance is None:
             continue
         for x, a, b in distance:

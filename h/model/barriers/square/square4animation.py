@@ -1,5 +1,4 @@
 from PIL import Image, ImageDraw, ImageFont
-from pandas.io.formats.info import frame_sub_kwargs
 
 from h.model.barriers.square.square1line import Square1Line
 from h.model.utils import utils_progress
