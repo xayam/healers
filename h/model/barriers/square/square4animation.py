@@ -113,7 +113,6 @@ for j in range(4):
             distance3 = square1line.dim2_to_dim1(distance3)
             for index2 in range(len(distance1)):
                 k += 1
-                print(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
                 t = round(256 * (2 * distance3[index2] + 1) / 2)
                 r = t % 256
                 g = t // 256
@@ -123,6 +122,7 @@ for j in range(4):
                     xy=(x, y),
                     fill=(r, g, r),
                 )
+        print(f"{filename} | {j}/{i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"
