@@ -25,6 +25,7 @@ for j in range(4):
         frames.append(frame)
         canvas = ImageDraw.Draw(frames[-1])
         filename = f"frames3animation/{j}{str(i).rjust(3, '0')}.png"
+        print(f"[INFO] {filename} | {j + 1}/4 | {i}/{height}")
         square = [
             [
                 [(height, i), (height - i, height)],
@@ -77,7 +78,6 @@ for j in range(4):
         if None in distances:
             _ = frames.pop()
             continue
-        print(f"[INFO] {filename} | {j + 1}/4 | {i}/{height}")
         for z in range(len(distances)):
             distances[z] = square1line.dim1_to_dim2(distances[z])
         for index1 in range(len(distances[0])):
