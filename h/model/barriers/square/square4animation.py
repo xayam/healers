@@ -1,5 +1,3 @@
-import sys
-
 from PIL import Image, ImageDraw, ImageFont
 
 from h.model.barriers.square.square1line import Square1Line
@@ -44,15 +42,11 @@ for j in range(4):
                                outline="black", width=1)
                 draw.text(xy=(x + 15, y + 15),
                           text=str(y//64 * 8 + x//64).rjust(2, "0"),
-                          font=font, fill ="black")
-        draw.line(xy=square[0],
-                  fill=borders[j][0], width=2)
-        draw.line(xy=square[3],
-                  fill=borders[j][1], width=2)
-        draw.line(xy=square[1],
-                  fill=borders[j][2], width=2)
-        draw.line(xy=square[2],
-                  fill=borders[j][3], width=2)
+                          font=font, fill="black")
+        draw.line(xy=square[0], fill=borders[j][0], width=2)
+        draw.line(xy=square[3], fill=borders[j][1], width=2)
+        draw.line(xy=square[1], fill=borders[j][2], width=2)
+        draw.line(xy=square[2], fill=borders[j][3], width=2)
         dists = []
         for z in range(4):
             dists.append(square1line.get_distances(

@@ -1,7 +1,5 @@
-import sys
-
-import matplotlib.pyplot as plt
 import numpy as np
+# import matplotlib.pyplot as plt
 
 np.random.seed(0)
 
@@ -59,9 +57,9 @@ class Square1Line:
                 ]
                 for c in grid
             ]
-        except:
+        except Exception as e:
             print(f"x1={x1}, y1={y1}, x2={x2}, y2={y2}")
-            raise
+            raise e
         X = [
             [
                 c[0],

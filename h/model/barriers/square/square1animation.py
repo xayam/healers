@@ -1,5 +1,3 @@
-import sys
-
 from PIL import Image, ImageDraw, ImageFont
 
 from h.model.barriers.square.square1line import Square1Line
@@ -23,7 +21,7 @@ for j in range(2):
                                outline="black", width=1)
                 draw.text(xy=(x + 15, y + 15),
                           text=str(y//64 * 8 + x//64).rjust(2, "0"),
-                          font=font, fill ="black")
+                          font=font, fill="black")
         if j == 0:
             draw.line(xy=[(512, i), (1, 512 - i)],
                       fill="red", width=2)
