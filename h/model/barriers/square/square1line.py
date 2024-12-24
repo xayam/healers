@@ -56,7 +56,10 @@ class Square1Line:
                 for c in grid
             ]
         except ZeroDivisionError:
-            print(f"ZeroDivisionError | x1={x1} | y1={y1} | x2={x2} | y2={y2}")
+            print(
+                f"[INFO] ZeroDivisionError | "
+                f"x1={x1} | y1={y1} | x2={x2} | y2={y2}"
+            )
             return None
         X = [
             [

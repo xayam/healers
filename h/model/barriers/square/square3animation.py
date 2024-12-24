@@ -4,8 +4,8 @@ from h.model.barriers.square.square1line import Square1Line
 
 width = 1024
 height = 512
-# step = 1
-step = 32
+step = 1
+# step = 32
 
 square1line = Square1Line()
 font = ImageFont.truetype(
@@ -104,7 +104,7 @@ for j in range(4):
                     xy=(x, y),
                     fill=(r, g, r),
                 )
-        print(f"{filename} | {j}/{i}/{height}")
+        print(f"[INFO] {filename} | {j}/{i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"
