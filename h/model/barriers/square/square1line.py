@@ -77,7 +77,7 @@ class Square1Line:
                 [x[a], grid[a][0], grid[a][1]]
             )
         if plot:
-            result = sorted(result, key=lambda k: k[0])
+            # result = sorted(result, key=lambda k: k[0])
             plt.figure(figsize=(20, 20))
             plt.scatter(x, y)
             plt.savefig(plot_name)
