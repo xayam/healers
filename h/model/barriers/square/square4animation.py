@@ -6,6 +6,7 @@ from h.model.utils import utils_progress
 
 width = 1024
 height = 512
+
 square1line = Square1Line()
 font = ImageFont.truetype(
     font="arial.ttf",
