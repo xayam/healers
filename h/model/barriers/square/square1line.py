@@ -35,9 +35,20 @@ class Square1Line:
             for j in range(len(data[i])):
                 result.append(data[i][j])
         result_mean = sum(result) / len(result)
-        result = np.asarray(result)
-        result = (result_mean - result) / (max(result) - min(result))
-        return result.tolist()
+        result_max = max(result)
+        result_min = min(result)
+        for i in range(len(result)):
+            try:
+                result[i] = (result_mean - result[i]) / (result_max - result_min)
+            except ZeroDivisionError:
+                print(
+                    f"[INFO] ZeroDivisionError         | "
+                    f"i={i} | result_mean={result_mean} | "
+                    f"result[i]={result[i]} | result_max={result_max} |"
+                    f"result_min={result_min}"
+                )
+                result[i] = 0.0
+        return result
 
     def get_distances(
             self,
