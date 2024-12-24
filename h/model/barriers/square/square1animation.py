@@ -8,7 +8,10 @@ step = 1
 # step = 32
 
 square1line = Square1Line()
-font = ImageFont.truetype(font="arial.ttf", size=32)
+font = ImageFont.truetype(
+    font="arial.ttf",
+    size=32
+)
 frames = []
 for j in range(2):
     for i in range(0, height, step):
