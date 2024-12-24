@@ -13,8 +13,8 @@ font = ImageFont.truetype(font="arial.ttf", size=32)
 images = []
 for j in range(2):
     for i in range(0, 513):
-        if i % 32 != 0:
-            continue
+        # if i % 32 != 0:
+        #     continue
         images.append(Image.new(mode="RGBA", size=(width, height),
                                 color=(255, 255, 255)))
         draw = ImageDraw.Draw(images[-1])
@@ -89,7 +89,7 @@ for j in range(2):
             # print(distances1)
             for index in range(len(distances1)):
                 k += 1
-                utils_progress(f"{filename} | {i}/512 | {k}/{2 ** 15}")
+                utils_progress(f"{filename} | {j}/{i}/512 | {k}/{2 ** 15}")
                 _rb = index % 256
                 _g = index // 256
                 _xx = round(512 + round(256 * (2 * distances1[index] + 1)))
@@ -102,5 +102,5 @@ for j in range(2):
 images[0].save(
     "square4animation.gif",
     save_all=True,
-    append_images=images[1:], duration=315, loop=0
+    append_images=images[1:], duration=15, loop=0
 )
