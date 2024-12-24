@@ -11,7 +11,7 @@ font = ImageFont.truetype(
     size=32
 )
 frames = []
-borders = ["red", "green", "blue", "yellow"]
+borders = ["red", "green", "blue"]
 for j in range(4):
     for i in range(32, height, 64):
         frame = Image.new(
@@ -114,7 +114,7 @@ for j in range(4):
             for index2 in range(len(distance1)):
                 k += 1
                 print(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
-                t = round(128 * (2 * distance3[index2] + 1))
+                t = round(256 * (2 * distance3[index2] + 1) / 2)
                 r = t % 256
                 g = t // 256
                 x = height + round(256 * (2 * distance1[index2] + 1))
