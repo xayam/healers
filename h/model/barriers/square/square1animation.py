@@ -4,12 +4,14 @@ from h.model.barriers.square.square1line import Square1Line
 
 width = 1024
 height = 512
+step = 1
+# step = 32
 
 square1line = Square1Line()
 font = ImageFont.truetype(font="arial.ttf", size=32)
 frames = []
 for j in range(2):
-    for i in range(0, height):
+    for i in range(0, height, step):
         frame = Image.new(
             mode="RGBA",
             size=(width, height),
@@ -72,6 +74,6 @@ frames[0].save(
     fp="square1animation.gif",
     save_all=True,
     append_images=frames[1:],
-    duration=15,
+    duration=15 * step,
     loop=0
 )

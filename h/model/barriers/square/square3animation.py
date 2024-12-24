@@ -4,6 +4,8 @@ from h.model.barriers.square.square1line import Square1Line
 
 width = 1024
 height = 512
+step = 1
+# step = 32
 
 square1line = Square1Line()
 font = ImageFont.truetype(
@@ -13,7 +15,7 @@ font = ImageFont.truetype(
 frames = []
 borders = ["red", "green", "blue"]
 for j in range(4):
-    for i in range(0, height):
+    for i in range(0, height, step):
         frame = Image.new(
             mode="RGBA",
             size=(width, height),
@@ -129,6 +131,6 @@ frames[0].save(
     fp="square3animation.gif",
     save_all=True,
     append_images=frames[1:],
-    duration=15,
+    duration=15 * step,
     loop=0
 )
