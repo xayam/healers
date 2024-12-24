@@ -1,5 +1,5 @@
 import numpy as np
-# import matplotlib.pyplot as plt
+import matplotlib.pyplot as plt
 
 np.random.seed(0)
 
@@ -41,7 +41,11 @@ class Square1Line:
         result = (result_mean - result) / (max(result) - min(result))
         return result.tolist()
 
-    def get_distances(self, x1, y1, x2, y2, grid=None):
+    def get_distances(
+            self,
+            x1, y1, x2, y2, grid=None,
+            plot=False, plot_name=None
+    ):
         grid = self.grid[8] if grid is None else grid
         try:
             X = [
@@ -69,14 +73,44 @@ class Square1Line:
         mean_y = sum(y) / len(y)
         x = [(mean_x - c) / (max(x) - min(x)) for c in x]
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
-        d = []
+        result = []
         for a in range(len(x)):
-            sign = 1.0 if x[a] >= 0.0 else -1.0
-            d.append([sign * (x[a] ** 2 + y[a] ** 2),
-                      grid[a][0], grid[a][1]])
-        result = d
-        # result = sorted(d, key=lambda k: k[0])
-        # print(result)
-        # plt.scatter(x, y)
-        # plt.show()
+            result.append(
+                [x[a], grid[a][0], grid[a][1]]
+            )
+        if plot:
+            result = sorted(result, key=lambda k: k[0])
+            plt.figure(figsize=(20, 20))
+            plt.scatter(x, y)
+            plt.savefig(plot_name)
+            # plt.show()
         return result
+
+
+def main():
+    square1line = Square1Line()
+    square1line.get_distances(
+        x1=0.0, y1=0.0,
+        x2=8, y2=1,
+        grid=None,
+        plot=True,
+        plot_name="square1line_81.png"
+    )
+    square1line.get_distances(
+        x1=0.0, y1=0.0,
+        x2=8, y2=7,
+        grid=None,
+        plot=True,
+        plot_name="square1line_87.png"
+    )
+    square1line.get_distances(
+        x1=0.0, y1=0.0,
+        x2=8, y2=0.5,
+        grid=None,
+        plot=True,
+        plot_name="square1line_805.png"
+    )
+
+
+if __name__ == "__main__":
+    main()
