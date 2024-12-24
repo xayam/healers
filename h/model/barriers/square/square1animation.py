@@ -23,7 +23,7 @@ for j in range(2):
         frames.append(frame)
         canvas = ImageDraw.Draw(frames[-1])
         filename = f"frames1animation/{j}{str(i).rjust(3, '0')}.png"
-        print(f"[INFO] {filename} | {j + 1}/2 | {i}/{height}")
+        print(f"[INFO] {filename} | {j + 1}/2 | {i + 1}/{height}")
         square = [
             [(height, i), (0, height - i)],
             [(height - i, height), (i, 1)]
@@ -57,9 +57,6 @@ for j in range(2):
             x2=coordinates[j][0],
             y2=coordinates[j][1]
         )
-        if distance is None:
-            _ = frames.pop()
-            continue
         for x, a, b in distance:
             x = height + round((2 * x + 1) / 2 * height)
             r = round(64 * (a + 3.5))

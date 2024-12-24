@@ -45,44 +45,52 @@ class Square1Line:
             plot=False, plot_name=None
     ):
         grid = self.grid[8] if grid is None else grid
-        try:
-            X = [
-                [
-                    (c[1] - y1 + x1 * (y2 - y1) /
-                     (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) /
-                    ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1)),
-                    0
-                ]
-                for c in grid
-            ]
-        except ZeroDivisionError:
-            print(
-                f"[INFO] ZeroDivisionError         | "
-                f"x1={x1} | y1={y1} | x2={x2} | y2={y2}"
-            )
-            return None
-        X = [
-            [
-                c[0],
-                y1 + (y2 - y1) / (x2 - x1) * (c[0] - x1)
-            ]
-            for c in X
-        ]
+        X = []
+        for c in grid:
+            try:
+                x0 = (c[1] - y1 + x1 * (y2 - y1) /
+                      (x2 - x1) - c[0] * (x2 - x1) / (y2 - y1)) / \
+                     ((y2 - y1) / (x2 - x1) - (x2 - x1) / (y2 - y1))
+                y0 = y1 + (y2 - y1) / (x2 - x1) * (x0 - x1)
+                X.append([x0, y0])
+            except ZeroDivisionError:
+                print(
+                    f"[INFO] ZeroDivisionError         | "
+                    f"x1={x1} | y1={y1} | x2={x2} | y2={y2}"
+                )
+                X.append([0.0, 0.0])
         x = [c[0] for c in X]
         y = [c[1] for c in X]
         mean_x = sum(x) / len(x)
         mean_y = sum(y) / len(y)
-        x = [(mean_x - c) / (max(x) - min(x)) for c in x]
-        y = [(mean_y - c) / (max(y) - min(y)) for c in y]
+        X, Y = [], []
+        for c in x:
+            try:
+                X.append((mean_x - c) / (max(x) - min(x)))
+            except ZeroDivisionError:
+                print(
+                    f"[INFO] ZeroDivisionError         | "
+                    f"mean_x={mean_x} | c={c} | max(x)={max(x)} | min(x)={min(x)}"
+                )
+                X.append(0.0)
+        for c in y:
+            try:
+                Y.append((mean_y - c) / (max(y) - min(y)))
+            except ZeroDivisionError:
+                print(
+                    f"[INFO] ZeroDivisionError         | "
+                    f"mean_y={mean_y} | c={c} | max(y)={max(y)} | min(y)={min(y)}"
+                )
+                Y.append(0.0)
         result = []
-        for a in range(len(x)):
+        for a in range(len(X)):
             result.append(
-                [x[a], grid[a][0], grid[a][1]]
+                [X[a], grid[a][0], grid[a][1]]
             )
         if plot:
             # result = sorted(result, key=lambda k: k[0])
             plt.figure(figsize=(20, 20))
-            plt.scatter(x, y)
+            plt.scatter(X, Y)
             plt.savefig(plot_name)
             plt.show()
         return result
