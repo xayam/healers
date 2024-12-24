@@ -80,13 +80,13 @@ for j in range(4):
             for index2 in range(len(distances1)):
                 k += 1
                 utils_progress(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
-                rb = index2 // 256
+                r = index2 // 256
                 g = index2 % 256
                 x = round(height + round(256 * (2 * distances1[index2] + 1)))
                 y = round(round(256 * (2 * distances2[index2] + 1)))
                 draw.point(
                     xy=(x, y),
-                    fill=(rb, g, rb),
+                    fill=(r, g, r),
                 )
         images[-1].save(filename, format="PNG")
 images[0].save(
