@@ -53,12 +53,6 @@ for j in range(4):
                   fill=borders[j][2], width=2)
         draw.line(xy=square[2],
                   fill=borders[j][3], width=2)
-        dists1 = square1line.get_distances(
-            x1=square[coordinates[0][0]][0][0],
-            y1=square[coordinates[0][1]][0][1],
-            x2=square[coordinates[0][2]][1][0],
-            y2=square[coordinates[0][3]][1][1]
-        )
         dists = []
         for z in range(4):
             dists.append(square1line.get_distances(
