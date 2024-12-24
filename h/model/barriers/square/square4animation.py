@@ -12,7 +12,7 @@ angles = [(0, 0), (0, height-1), (width-1, height-1), (width-1, 0)]
 font = ImageFont.truetype(font="arial.ttf", size=32)
 images = []
 for j in range(4):
-    for i in range(0, 513):
+    for i in range(0, height):
         # if i % 32 != 0:
         #     continue
         images.append(Image.new(mode="RGBA", size=(width, height),
