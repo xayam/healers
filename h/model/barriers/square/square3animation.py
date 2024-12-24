@@ -21,7 +21,7 @@ for j in range(4):
         )
         frames.append(frame)
         canvas = ImageDraw.Draw(frames[-1])
-        filename = f"frames4animation/{j}{str(i).rjust(3, '0')}.png"
+        filename = f"frames3animation/{j}{str(i).rjust(3, '0')}.png"
         square = [
             [
                 [(height, i), (height - i, height)],
@@ -128,7 +128,7 @@ for j in range(4):
             format="PNG"
         )
 frames[0].save(
-    fp="square4animation.gif",
+    fp="square3animation.gif",
     save_all=True,
     append_images=frames[1:],
     duration=15,
