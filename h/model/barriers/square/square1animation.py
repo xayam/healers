@@ -53,6 +53,7 @@ for j in range(2):
             y2=coordinates[j][1]
         )
         if distance is None:
+            _ = frames.pop()
             continue
         for x, a, b in distance:
             x = height + round((2 * x + 1) / 2 * height)

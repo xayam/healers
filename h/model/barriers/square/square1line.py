@@ -47,6 +47,8 @@ class Square1Line:
             return None
         if x2 == 0.0 or y2 == 0.0 or abs(x2) == abs(y2):
             return None
+        if x1 == y2 and y1 == x2:
+            return None
         try:
             X = [
                 [
