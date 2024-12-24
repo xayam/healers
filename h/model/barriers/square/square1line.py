@@ -44,7 +44,7 @@ class Square1Line:
             x1, y1, x2, y2, grid=None,
             plot=False, plot_name=None
     ):
-        grid = self.grid[8] if grid is None else grid
+        grid = self.grid[8] if grid is None else self.grid[grid]
         X = []
         for c in grid:
             try:

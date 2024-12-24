@@ -85,7 +85,7 @@ for j in range(4):
                     y1=0.0,
                     x2=distances[indexes[z][0]][index1][0],
                     y2=distances[indexes[z][1]][index1][0],
-                    grid=square1line.grid[64]
+                    grid=64
                 ))
             for z in range(3):
                 distance[z] = square1line.dim1_to_dim2(distance[z])
