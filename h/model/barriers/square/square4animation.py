@@ -11,19 +11,7 @@ font = ImageFont.truetype(
     size=32
 )
 frames = []
-borders = [
-    ["red", "green", "blue", "yellow"],
-    ["red", "green", "blue", "yellow"],
-    ["red", "green", "blue", "yellow"],
-    # ["yellow", "red", "green", "blue"],
-    # ["blue", "yellow", "red", "green"],
-    # ["green", "blue", "yellow", "red"]
-]
-coordinates = [
-    [0, 1, 2, 3],
-    [0, 1, 2, 3],
-    [0, 1, 2, 3],
-]
+borders = ["red", "green", "blue", "yellow"]
 for j in range(3):
     for i in range(0, height, 32):
         frame = Image.new(
@@ -72,17 +60,19 @@ for j in range(3):
                 )
         distances = []
         for z in range(3):
-            x1 = square[j][coordinates[j][z]][0][0]
-            y1 = square[j][coordinates[j][z]][0][1]
-            x2 = square[j][coordinates[j][z]][1][0]
-            y2 = square[j][coordinates[j][z]][1][1]
-            canvas.line(xy=[(x1, y1), (x2, y2)],
-                        fill=borders[j][z], width=2)
+            canvas.line(
+                xy=square[j][z],
+                fill=borders[z],
+                width=2
+            )
             distances.append(square1line.get_distances(
-                x1=x1, y1=y1, x2=x2, y2=y2
+                x1=square[j][z][0][0],
+                y1=square[j][z][0][1],
+                x2=square[j][z][1][0],
+                y2=square[j][z][1][1]
             ))
         if None in distances:
-            # _ = frames.pop()
+            _ = frames.pop()
             continue
         for z in range(len(distances)):
             distances[z] = square1line.dim1_to_dim2(distances[z])
