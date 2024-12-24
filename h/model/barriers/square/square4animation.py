@@ -100,8 +100,8 @@ for j in range(4):
                 utils_progress(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
                 r = index2 // 256
                 g = index2 % 256
-                x = round(height + round(256 * (2 * distance1[index2] + 1)))
-                y = round(round(256 * (2 * distance2[index2] + 1)))
+                x = height + round(256 * (2 * distance1[index2] + 1))
+                y = round(256 * (2 * distance2[index2] + 1))
                 canvas.point(
                     xy=(x, y),
                     fill=(r, g, r),

@@ -7,7 +7,7 @@ np.random.seed(0)
 class Square1Line:
 
     def __init__(self):
-        self.grid = {8: [], 64: [], 4096: []}
+        self.grid = {8: [], 64: []}
         self.init()
 
     def init(self):
@@ -43,9 +43,9 @@ class Square1Line:
 
     def get_distances(self, x1, y1, x2, y2, grid=None):
         grid = self.grid[8] if grid is None else grid
-        if x1 == 0. or y1 == 0. or abs(x1) == abs(y1):
+        if x1 == 0.0 or y1 == 0.0 or abs(x1) == abs(y1):
             return None
-        if x2 == 0. or y2 == 0. or abs(x2) == abs(y2):
+        if x2 == 0.0 or y2 == 0.0 or abs(x2) == abs(y2):
             return None
         try:
             X = [
@@ -75,7 +75,7 @@ class Square1Line:
         y = [(mean_y - c) / (max(y) - min(y)) for c in y]
         d = []
         for a in range(len(x)):
-            sign = 1. if x[a] >= 0. else -1.
+            sign = 1.0 if x[a] >= 0.0 else -1.0
             d.append([sign * (x[a] ** 2 + y[a] ** 2),
                       grid[a][0], grid[a][1]])
         result = d
