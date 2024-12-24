@@ -11,7 +11,7 @@ height = 513
 angles = [(0, 0), (0, height-1), (width-1, height-1), (width-1, 0)]
 font = ImageFont.truetype(font="arial.ttf", size=32)
 images = []
-for j in range(2):
+for j in range(4):
     for i in range(0, 513):
         # if i % 32 != 0:
         #     continue
@@ -27,15 +27,15 @@ for j in range(2):
                 draw.text(xy=(x + 15, y + 15),
                           text=str(y//64 * 8 + x//64).rjust(2, "0"),
                           font=font, fill ="black")
-        draw.line(xy=[(512, i), (512 - i, 512)],
-                  fill="red", width=2)
-        draw.line(xy=[(512, i), (i, 0)],
-                  fill="red", width=2)
-        draw.line(xy=[(0, 512 - i), (512 - i, 512)],
-                  fill="red", width=2)
-        draw.line(xy=[(0, 512 - i), (i, 0)],
-                  fill="red", width=2)
         if j == 0:
+            draw.line(xy=[(512, i), (512 - i, 512)],
+                      fill="red", width=2)
+            draw.line(xy=[(512, i), (i, 0)],
+                      fill="green", width=2)
+            draw.line(xy=[(0, 512 - i), (512 - i, 512)],
+                      fill="blue", width=2)
+            draw.line(xy=[(0, 512 - i), (i, 0)],
+                      fill="yellow", width=2)
             dists1 = square1line.get_distances(
                 x=256, y=i - 256 + 0.01
             )
@@ -48,7 +48,57 @@ for j in range(2):
             dists4 = square1line.get_distances(
                 x=i - 256, y=0.01
             )
+        elif j == 1:
+            draw.line(xy=[(512, i), (512 - i, 512)],
+                      fill="green", width=2)
+            draw.line(xy=[(512, i), (i, 0)],
+                      fill="yellow", width=2)
+            draw.line(xy=[(0, 512 - i), (512 - i, 512)],
+                      fill="red", width=2)
+            draw.line(xy=[(0, 512 - i), (i, 0)],
+                      fill="blue", width=2)
+            dists4 = square1line.get_distances(
+                x=256, y=i - 256 + 0.01
+            )
+            dists1 = square1line.get_distances(
+                x=256 - i + 0.01, y=256
+            )
+            dists2 = square1line.get_distances(
+                x=0.01, y=256 - i
+            )
+            dists3 = square1line.get_distances(
+                x=i - 256, y=0.01
+            )
+        elif j == 2:
+            draw.line(xy=[(512, i), (512 - i, 512)],
+                      fill="yellow", width=2)
+            draw.line(xy=[(512, i), (i, 0)],
+                      fill="blue", width=2)
+            draw.line(xy=[(0, 512 - i), (512 - i, 512)],
+                      fill="green", width=2)
+            draw.line(xy=[(0, 512 - i), (i, 0)],
+                      fill="red", width=2)
+            dists3 = square1line.get_distances(
+                x=256, y=i - 256 + 0.01
+            )
+            dists4 = square1line.get_distances(
+                x=256 - i + 0.01, y=256
+            )
+            dists1 = square1line.get_distances(
+                x=0.01, y=256 - i
+            )
+            dists2 = square1line.get_distances(
+                x=i - 256, y=0.01
+            )
         else:
+            draw.line(xy=[(512, i), (512 - i, 512)],
+                      fill="blue", width=2)
+            draw.line(xy=[(512, i), (i, 0)],
+                      fill="red", width=2)
+            draw.line(xy=[(0, 512 - i), (512 - i, 512)],
+                      fill="yellow", width=2)
+            draw.line(xy=[(0, 512 - i), (i, 0)],
+                      fill="green", width=2)
             dists2 = square1line.get_distances(
                 x=256, y=i - 256 + 0.01
             )
