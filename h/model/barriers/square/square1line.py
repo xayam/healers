@@ -43,12 +43,6 @@ class Square1Line:
 
     def get_distances(self, x1, y1, x2, y2, grid=None):
         grid = self.grid[8] if grid is None else grid
-        if x1 == 0.0 or y1 == 0.0 or abs(x1) == abs(y1):
-            return None
-        if x2 == 0.0 or y2 == 0.0 or abs(x2) == abs(y2):
-            return None
-        if x1 == y2 and y1 == x2:
-            return None
         try:
             X = [
                 [
@@ -59,9 +53,9 @@ class Square1Line:
                 ]
                 for c in grid
             ]
-        except Exception as e:
-            print(f"x1={x1}, y1={y1}, x2={x2}, y2={y2}")
-            raise e
+        except ZeroDivisionError:
+            print(f"ZeroDivisionError | x1={x1} | y1={y1} | x2={x2} | y2={y2}")
+            return None
         X = [
             [
                 c[0],

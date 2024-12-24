@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from h.model.barriers.square.square1line import Square1Line
-from h.model.utils import utils_progress
 
 width = 1024
 height = 512
@@ -10,7 +9,7 @@ square1line = Square1Line()
 font = ImageFont.truetype(font="arial.ttf", size=32)
 frames = []
 for j in range(2):
-    for i in range(0, height, 32):
+    for i in range(0, height):
         frame = Image.new(
             mode="RGBA",
             size=(width, height),
@@ -64,7 +63,7 @@ for j in range(2):
                 fill=(64 + r//4, 64 + g//4, 64 + r//4),
                 width=2
             )
-        utils_progress(filename)
+        print(filename)
         frames[-1].save(
             fp=filename,
             format="PNG"
@@ -73,6 +72,6 @@ frames[0].save(
     fp="square1animation.gif",
     save_all=True,
     append_images=frames[1:],
-    duration=3000,
+    duration=15,
     loop=0
 )

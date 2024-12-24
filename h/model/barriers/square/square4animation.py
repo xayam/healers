@@ -1,7 +1,6 @@
 from PIL import Image, ImageDraw, ImageFont
 
 from h.model.barriers.square.square1line import Square1Line
-from h.model.utils import utils_progress
 
 width = 1024
 height = 512
@@ -14,17 +13,18 @@ font = ImageFont.truetype(
 frames = []
 borders = [
     ["red", "green", "blue", "yellow"],
-    ["green", "yellow", "red", "blue"],
-    ["yellow", "blue", "green", "red"],
-    ["blue", "red", "yellow", "green"]
+    ["red", "green", "blue", "yellow"],
+    ["red", "green", "blue", "yellow"],
+    # ["yellow", "red", "green", "blue"],
+    # ["blue", "yellow", "red", "green"],
+    # ["green", "blue", "yellow", "red"]
 ]
 coordinates = [
-    [0, 2, 3, 1],
-    [1, 3, 0, 2],
-    [3, 2, 1, 0],
-    [2, 0, 3, 1]
+    [0, 1, 2, 3],
+    [0, 1, 2, 3],
+    [0, 1, 2, 3],
 ]
-for j in range(4):
+for j in range(3):
     for i in range(0, height, 32):
         frame = Image.new(
             mode="RGBA",
@@ -35,41 +35,56 @@ for j in range(4):
         canvas = ImageDraw.Draw(frames[-1])
         filename = f"frames4animation/{j}{str(i).rjust(3, '0')}.png"
         square = [
-            [(height, i), (height - i, height)],
-            [(0, height - i), (height - i, height)],
-            [(0, height - i), (i, 0)],
-            [(height, i), (i, 0)]
+            [
+                [(height, i), (height - i, height)],
+                [(height - i, height), (0, height - i)],
+                [(0, height - i), (height, i)]
+            ],
+            [
+                [(height - i, height), (0, height - i)],
+                [(0, height - i), (i, 0)],
+                [(i, 0), (height - i, height)]
+            ],
+            [
+                [(0, height - i), (i, 0)],
+                [(i, 0), (height, i)],
+                [(height, i), (0, height - i)],
+            ],
+            [
+                [(i, 0), (height, i)],
+                [(height, i), (height - i, height)],
+                [(height - i, height), (i, 0)],
+            ]
         ]
         for x in range(0, height, 64):
             for y in range(0, height, 64):
                 canvas.rectangle(
                     xy=[(x, y), (x + 64, y + 64)],
-                    fill=(64 + x//4, 64 + y//4, 64 + x//4),
+                    fill=(64 + x // 4, 64 + y // 4, 64 + x // 4),
                     outline="black",
                     width=1
                 )
                 canvas.text(
                     xy=(x + 15, y + 15),
-                    text=str(y//64 * 8 + x//64).rjust(2, "0"),
+                    text=str(y // 64 * 8 + x // 64).rjust(2, "0"),
                     font=font,
                     fill="black"
                 )
-        canvas.line(xy=square[0], fill=borders[j][0], width=2)
-        canvas.line(xy=square[3], fill=borders[j][1], width=2)
-        canvas.line(xy=square[1], fill=borders[j][2], width=2)
-        canvas.line(xy=square[2], fill=borders[j][3], width=2)
         distances = []
-        for z in range(4):
+        for z in range(3):
+            x1 = square[j][coordinates[j][z]][0][0]
+            y1 = square[j][coordinates[j][z]][0][1]
+            x2 = square[j][coordinates[j][z]][1][0]
+            y2 = square[j][coordinates[j][z]][1][1]
+            canvas.line(xy=[(x1, y1), (x2, y2)],
+                        fill=borders[j][z], width=2)
             distances.append(square1line.get_distances(
-                x1=square[coordinates[z][0]][0][0],
-                y1=square[coordinates[z][1]][0][1],
-                x2=square[coordinates[z][2]][1][0],
-                y2=square[coordinates[z][3]][1][1]
+                x1=x1, y1=y1, x2=x2, y2=y2
             ))
         if None in distances:
-            _ = frames.pop()
+            # _ = frames.pop()
             continue
-        for z in range(4):
+        for z in range(len(distances)):
             distances[z] = square1line.dim1_to_dim2(distances[z])
         k = 0
         for index1 in range(len(distances[0])):
@@ -87,19 +102,31 @@ for j in range(4):
             distance2 = square1line.get_distances(
                 x1=0.0,
                 y1=0.0,
-                x2=distances[2][index1][0],
-                y2=distances[3][index1][0],
+                x2=distances[1][index1][0],
+                y2=distances[2][index1][0],
                 grid=square1line.grid[64]
             )
             if distance2 is None:
                 continue
             distance2 = square1line.dim1_to_dim2(distance2)
             distance2 = square1line.dim2_to_dim1(distance2)
+            distance3 = square1line.get_distances(
+                x1=0.0,
+                y1=0.0,
+                x2=distances[2][index1][0],
+                y2=distances[0][index1][0],
+                grid=square1line.grid[64]
+            )
+            if distance3 is None:
+                continue
+            distance3 = square1line.dim1_to_dim2(distance3)
+            distance3 = square1line.dim2_to_dim1(distance3)
             for index2 in range(len(distance1)):
                 k += 1
-                utils_progress(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
-                r = index2 // 256
-                g = index2 % 256
+                print(f"{filename} | {j}/{i}/{height} | {k}/{2 ** 15}")
+                t = round(128 * (2 * distance3[index2] + 1))
+                r = t % 256
+                g = t // 256
                 x = height + round(256 * (2 * distance1[index2] + 1))
                 y = round(256 * (2 * distance2[index2] + 1))
                 canvas.point(
@@ -114,6 +141,6 @@ frames[0].save(
     fp="square4animation.gif",
     save_all=True,
     append_images=frames[1:],
-    duration=height,
+    duration=1500,
     loop=0
 )
