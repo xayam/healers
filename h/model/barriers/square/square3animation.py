@@ -105,7 +105,7 @@ for j in range(4):
             format="PNG"
         )
 frames[0].save(
-    fp="square3animation.gif",
+    fp=f"square3animation{step}.gif",
     save_all=True,
     append_images=frames[1:],
     duration=15 * step,
