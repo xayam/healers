@@ -24,9 +24,7 @@ coordinates = [
     [2, 0, 3, 1]
 ]
 for j in range(4):
-    for i in range(0, height):
-        if i % 32 != 0:
-            continue
+    for i in range(0, height, 32):
         images.append(Image.new(
             mode="RGBA",
             size=(width, height),
