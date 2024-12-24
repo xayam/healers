@@ -13,7 +13,7 @@ font = ImageFont.truetype(
 frames = []
 borders = ["red", "green", "blue"]
 for j in range(4):
-    for i in range(32, height, 64):
+    for i in range(height):
         frame = Image.new(
             mode="RGBA",
             size=(width, height),
@@ -131,6 +131,6 @@ frames[0].save(
     fp="square4animation.gif",
     save_all=True,
     append_images=frames[1:],
-    duration=1500,
+    duration=15,
     loop=0
 )
