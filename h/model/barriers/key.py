@@ -1,6 +1,6 @@
 import math
 
-from model.utils import utils_beep
+from h.model.utils import utils_beep
 
 
 def key_get(name: int, number: int) -> int:
