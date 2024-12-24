@@ -81,7 +81,7 @@ class Square1Line:
             plt.figure(figsize=(20, 20))
             plt.scatter(x, y)
             plt.savefig(plot_name)
-            # plt.show()
+            plt.show()
         return result
 
 
