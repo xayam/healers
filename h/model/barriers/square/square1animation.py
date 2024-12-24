@@ -28,13 +28,13 @@ for j in range(2):
             draw.line(xy=[(512, i), (1, 512 - i)],
                       fill="red", width=2)
             dists = square1line.get_distances(
-                x=256, y=i - 256 + 0.01
+                x1=0.0, y1=0.0, x2=256.0, y2=i - 256.0 + 0.01
             )
         else:
             draw.line(xy=[(512 - i, 512), (i, 1)],
                       fill="red", width=2)
             dists = square1line.get_distances(
-                x=256 - i + 0.01, y=256
+                x1=0.0, y1=0.0, x2=256.0 - i + 0.01, y2=256.0
             )
         for xx, aa, bb in dists:
             _xx = 512 + round((2 * xx + 1) / 2 * 512)

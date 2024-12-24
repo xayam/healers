@@ -43,14 +43,12 @@ class Square1Line:
         result = (result_mean - result) / (max(result) - min(result))
         return result.tolist()
 
-    def get_distances(self, x, y, grid=None):
+    def get_distances(self, x1, y1, x2, y2, grid=None):
         grid = self.grid[8] if grid is None else grid
-        if x == 0. or y == 0. or abs(x) == abs(y):
+        if x1 == 0. or y1 == 0. or abs(x1) == abs(y1):
             return None
-        x1 = 0.0
-        y1 = 0.0
-        x2 = x
-        y2 = y
+        if x2 == 0. or y2 == 0. or abs(x2) == abs(y2):
+            return None
         try:
             X = [
                 [
@@ -62,7 +60,7 @@ class Square1Line:
                 for c in grid
             ]
         except:
-            print(x, y)
+            print(f"x1={x1}, y1={y1}, x2={x2}, y2={y2}")
             raise
         X = [
             [
