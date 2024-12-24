@@ -22,9 +22,7 @@ class Square1Line:
 
     @staticmethod
     def dim1_to_dim2(data):
-        # print(data)
         size = int(len(data) ** 0.5)
-        # print(size)
         result = [[0. for _ in range(size)] for _ in range(size)]
         for distance, x, y in data:
             result[int(x + size // 2 - 0.5)][int(y + size // 2 - 0.5)] = distance
