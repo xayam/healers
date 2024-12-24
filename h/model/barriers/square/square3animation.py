@@ -76,7 +76,6 @@ for j in range(4):
             continue
         for z in range(len(distances)):
             distances[z] = square1line.dim1_to_dim2(distances[z])
-        k = 0
         for index1 in range(len(distances[0])):
             distance1 = square1line.get_distances(
                 x1=0.0,
@@ -112,7 +111,6 @@ for j in range(4):
             distance3 = square1line.dim1_to_dim2(distance3)
             distance3 = square1line.dim2_to_dim1(distance3)
             for index2 in range(len(distance1)):
-                k += 1
                 t = round(256 * (2 * distance3[index2] + 1) / 2)
                 r = t % 256
                 g = t // 256
