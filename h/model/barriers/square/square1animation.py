@@ -59,6 +59,7 @@ for j in range(2):
         if distance is None:
             _ = frames.pop()
             continue
+        print(f"[INFO] {filename} | {j + 1}/2 | {i}/{height}")
         for x, a, b in distance:
             x = height + round((2 * x + 1) / 2 * height)
             r = round(64 * (a + 3.5))
@@ -68,7 +69,6 @@ for j in range(2):
                 fill=(64 + r//4, 64 + g//4, 64 + r//4),
                 width=2
             )
-        print(f"[INFO] {filename} | {j + 1}/2 | {i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"

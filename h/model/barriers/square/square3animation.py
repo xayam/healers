@@ -77,6 +77,7 @@ for j in range(4):
         if None in distances:
             _ = frames.pop()
             continue
+        print(f"[INFO] {filename} | {j + 1}/4 | {i}/{height}")
         for z in range(len(distances)):
             distances[z] = square1line.dim1_to_dim2(distances[z])
         for index1 in range(len(distances[0])):
@@ -104,7 +105,6 @@ for j in range(4):
                     xy=(x, y),
                     fill=(r, g, r),
                 )
-        print(f"[INFO] {filename} | {j + 1}/4 | {i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"
