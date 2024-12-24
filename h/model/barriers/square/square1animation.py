@@ -68,7 +68,7 @@ for j in range(2):
                 fill=(64 + r//4, 64 + g//4, 64 + r//4),
                 width=2
             )
-        print(f"[INFO] {filename} | {j}/{i}/{height}")
+        print(f"[INFO] {filename} | {j + 1}/2 | {i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"

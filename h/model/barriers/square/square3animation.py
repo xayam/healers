@@ -104,7 +104,7 @@ for j in range(4):
                     xy=(x, y),
                     fill=(r, g, r),
                 )
-        print(f"[INFO] {filename} | {j}/{i}/{height}")
+        print(f"[INFO] {filename} | {j + 1}/4 | {i}/{height}")
         frames[-1].save(
             fp=filename,
             format="PNG"
