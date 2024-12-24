@@ -13,7 +13,7 @@ font = ImageFont.truetype(
 frames = []
 borders = ["red", "green", "blue"]
 for j in range(4):
-    for i in range(0, height, 32):
+    for i in range(height, 32):
         frame = Image.new(
             mode="RGBA",
             size=(width, height),
