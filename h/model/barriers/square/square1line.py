@@ -44,7 +44,7 @@ class Square1Line:
                 print(
                     f"[INFO] ZeroDivisionError         | "
                     f"i={i} | result_mean={result_mean} | "
-                    f"result[i]={result[i]} | result_max={result_max} |"
+                    f"result[i]={result[i]} | result_max={result_max} | "
                     f"result_min={result_min}"
                 )
                 result[i] = 0.0
