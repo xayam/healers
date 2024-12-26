@@ -114,21 +114,21 @@ def main():
         x2=8, y2=1,
         grid=None,
         plot=True,
-        plot_name="square1line_81.png"
+        plot_name="square1line81.png"
     )
     square1line.get_distances(
         x1=0.0, y1=0.0,
         x2=8, y2=7,
         grid=None,
         plot=True,
-        plot_name="square1line_87.png"
+        plot_name="square1line87.png"
     )
     square1line.get_distances(
         x1=0.0, y1=0.0,
         x2=8, y2=0.5,
         grid=None,
         plot=True,
-        plot_name="square1line_805.png"
+        plot_name="square1line805.png"
     )
 
 
