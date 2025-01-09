@@ -1,6 +1,6 @@
 import winsound
 
-from n3compress import n3c_sort
+from h.model.barriers.sorting.n3compress import n3c_sort
 
 
 def main(_data: str, verbose=1) -> [list, list]:

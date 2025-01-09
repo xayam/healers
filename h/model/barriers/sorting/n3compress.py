@@ -1,6 +1,6 @@
 import math
 
-from n3utils import colorize_bool, colorize_swap
+from h.model.barriers.sorting.n3utils import colorize_bool, colorize_swap
 
 
 def n3c_sort(data, printable=True, verbose=0):

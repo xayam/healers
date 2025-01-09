@@ -1,6 +1,6 @@
 from typing import List
 
-from n3utils import colorize_swap
+from h.model.barriers.sorting.n3utils import colorize_swap
 
 
 def n3c_sort(input_data: List[int], verbose=0) -> dict:
@@ -86,7 +86,7 @@ def n3c_sort(input_data: List[int], verbose=0) -> dict:
         outputs = {
             "data": best,
             "false_operation": 0,
-            "count": count - 1,
+            "count": count,
             "ones": ones,
             "zeros": width - ones,
             "position": last_use_position,

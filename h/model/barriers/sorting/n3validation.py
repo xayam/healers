@@ -2,34 +2,38 @@ import math
 import pprint
 import sys
 
-import n3lang.n3recovery
-from n3sort import n3c_sort
-from n3utils import colorize_bool, get_n3sort_values, get_sum_width, list_to_str, progress
+from h.model.barriers.sorting.n3recovery import n3c_recovery
+from h.model.barriers.sorting.n3sort import n3c_sort
+from h.model.barriers.sorting.n3utils \
+    import colorize_bool, get_n3sort_values, \
+    get_sum_width, list_to_str, progress
 
 
 def n3c_validation():
     verbose = 1
     # print(get_annotation())
     # print(f"Decompressing...")
-    for width in range(1, 7):
+    for width in range(4, 5):
         # [8, 32, 512,  65536]
         results = dict()
         for d in range(2 ** width):
             s = f"{d:{width}b}".replace(" ", "0")
+            # s = "0011"
             arr = [int(char) for char in s]
             data = arr[:]
             if verbose > 0:
                 print(f"Compressing...\n")
             values = n3c_sort(data, verbose)
             values["width"] = width
-            values["verbose"] = 1
+            values["verbose"] = verbose
             values.__delitem__("data")
             values.__delitem__("zeros")
-            recovery = n3lang.n3recovery.n3c_recovery(**values)
+            recovery = n3c_recovery(**values)
             assertion = recovery == s
             print(f"{colorize_bool(assertion)} width={width} " + \
                   f"'{s}' -> '{recovery}'")
             assert assertion
+            # break
 
 
 def main(degrees=None, verbose=0) -> str:

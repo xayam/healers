@@ -14,7 +14,8 @@ def n3c_recovery(width: int,
     best = [1] * ones + [0] * (width - ones)
     if false_operation:
         return list_to_str(best)
-    count += 1
+    # count += 1
+    print(count)
     limit = 2 ** math.ceil(get_sum_width(width - 1))
 
     origin_position = position
@@ -24,18 +25,18 @@ def n3c_recovery(width: int,
     tool_change = origin_tool_change
     position = last_use_position
     data = best[:]
-    while (count + tool_change > 0) and (tool_change > - limit):
+    while (count > 0) and (tool_change > - limit):
         if verbose > 0:
             print(f"f={false_operation} c={count} o={ones} p={position} t={tool} " +
                   f"e={tool_change}, current={data}")
         if tool == 0:
             exist_exchange = False
             exist_pos = 0
-            for i in range(position, width - 1):
-                if (data[i] == 1) and (data[i + 1] == 0):
+            for i in range(width - 1, position - 1, -1):
+                if (data[i] == 0) and (data[i - 1] == 1):
                     exist_exchange = True
                     exist_pos = i
-                    break
+                    # break
             if not exist_exchange:
                 tool = 1
                 if tool_change == 0:
@@ -48,11 +49,10 @@ def n3c_recovery(width: int,
                     print(f"f={false_operation} c={count} o={ones} p={position} t={tool} " +
                           f"e={tool_change}, current={data}")
                 continue
-            else:
-                position = exist_pos
-            message = f"{colorize_swap(data, position, position + 1)} -> "
-            data[position], data[position + 1] = data[position + 1], data[position]
-            message += f"{colorize_swap(data, position, position + 1)}"
+            position = exist_pos
+            message = f"{colorize_swap(data, position, position - 1)} -> "
+            data[position], data[position - 1] = data[position - 1], data[position]
+            message += f"{colorize_swap(data, position, position - 1)}"
             if verbose > 0:
                 print(message)
             count -= 1
@@ -60,11 +60,12 @@ def n3c_recovery(width: int,
         elif tool == 1:
             exist_exchange = False
             exist_pos = 0
-            for i in range(position, width - 1):
-                if (data[i] == 1) and (data[i + 2] == 0):
+            for i in range(width - 1, position - 1, -1):
+                if (data[i] == 0) and (data[i - 2] == 1):
                     exist_exchange = True
                     exist_pos = i
-                    break
+                    print(f"exist_pos={exist_pos}")
+                    # break
             if not exist_exchange:
                 tool = 0
                 tool_change -= 1
@@ -73,11 +74,10 @@ def n3c_recovery(width: int,
                     print(f"f={false_operation} c={count} o={ones} p={position} t={tool} " +
                           f"e={tool_change}, current={data}")
                 continue
-            else:
-                position = exist_pos
-            message = f"{colorize_swap(data, position, position + 2)} -> "
-            data[position], data[position + 2] = data[position + 2], data[position]
-            message += f"{colorize_swap(data, position, position + 2)}"
+            position = exist_pos
+            message = f"{colorize_swap(data, position, position - 2)} -> "
+            data[position], data[position - 2] = data[position - 2], data[position]
+            message += f"{colorize_swap(data, position, position - 2)}"
             if verbose > 0:
                 print(message)
             count -= 1
