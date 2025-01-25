@@ -27,7 +27,7 @@ for n in range(2, SIZE):
 
 for x, y, z in data:
     print(f"[{x}, {y}, {z}]")
-
+print(len(data))
 data = np.asarray(data)
 fig = plt.figure(figsize=(12, 12))
 ax = fig.add_subplot(projection='3d')
