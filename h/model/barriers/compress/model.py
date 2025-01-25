@@ -1,5 +1,10 @@
+import hashlib
 import json
+import math
 import os.path
+import pickle
+import sys
+
 import torch.nn
 from kan import *
 from h.model.utils import utils_print
@@ -8,6 +13,7 @@ from h.model.utils import utils_print
 class Model:
 
     def __init__(self):
+        self.range = None
         self.dataset_json = None
         self.input = None
         self.width = None
@@ -47,13 +53,17 @@ class Model:
         }
         self.stop = False
         self.random = random.SystemRandom(0)
-        self.width = 36000 * 3
-        self.input = [self.random.choice([0, 1]) for _ in range(self.width)]
+        self.width = 2 ** 14
+        self.range = list(range(1, 257))
+        self.input = [
+            self.random.choice(self.range)
+            for _ in range(self.width)
+        ]
         self.model_option = {
-            "len_input": 1,
-            "hidden_layers": [2],
+            "len_input": 40,
+            "hidden_layers": [20, 10, 5, 3, 2, 1],
             "len_output": 1,
-            "grid": 50,
+            "grid": 30,
             "k": 3,
         }
         self.file_model = "model.pth"
@@ -93,7 +103,10 @@ class Model:
             self.job()
 
     def model_save(self):
-        torch.save(self.model.state_dict(), self.file_model)
+        torch.save(
+            self.model.state_dict(), self.file_model,
+            pickle_protocol=pickle.HIGHEST_PROTOCOL
+        )
         d = self.dataset["train_input"].tolist()
         tl = self.dataset["train_label"].tolist()
         for i in range(len(d)):
@@ -109,8 +122,9 @@ class Model:
         self.dataset = {}
         train_inputs, train_labels = [], []
         for i in range(len(json_data)):
-            train_inputs.append([i])
-            train_labels.append(json_data[i])
+            train_inputs.append([json_data[i][0]])
+            train_labels.append(json_data[i][1])
+            print(train_inputs[-1], train_labels[-1])
         self.dataset['train_input'] = \
             torch.FloatTensor(train_inputs).type(self.dtype).to(self.device)
         self.dataset['train_label'] = \
@@ -162,19 +176,21 @@ class Model:
             utils_print(self.dataset["train_label"].shape)
             utils_print(self.dataset["test_input"].shape)
             utils_print(self.dataset["test_label"].shape)
+            # utils_print(self.dataset["train_input"])
+            # utils_print(self.dataset["train_label"].tolist())
             result = self.model.fit(
                 self.dataset,
                 opt="LBFGS",
                 # loss_fn=self.loss_fn,
-                lamb=0.001,
-                steps=1,
+                lamb=0.01,
+                steps=10000,
                 update_grid=False,
-                metrics=(
-                     self.train_acc,
-                     self.test_acc
-                )
+                # metrics=(
+                #      self.train_acc,
+                #      self.test_acc
+                # )
             )
-            utils_print(result['train_acc'][-1], result['test_acc'][-1])
+            # utils_print(result['train_acc'][-1], result['test_acc'][-1])
             model.model_save()
             break
             self.dataset = {}
@@ -213,17 +229,16 @@ class Model:
 
 
     def get_data(self):
-        result_train = [[i] for i in range(self.width // 3)]
-        result_label = []
-        for i in range(0, len(self.input), 3):
-            result_label.append(
-                int(
-                    str(self.input[i]) +
-                    str(self.input[i + 1]) +
-                    str(self.input[i + 2]),
-                    2
-                )
-            )
+        result_train, result_label = [], []
+        s = ""
+        for i in range(1, self.width):
+            s += chr(self.input[i - 1])
+            h = hashlib.sha1(s.encode("utf-8")).hexdigest()
+            inp = []
+            for c in h:
+                inp.append(ord(c))
+            result_train.append(inp)
+            result_label.append(self.input[i])
         return result_train, result_label
 
     def get_dataset(self):
@@ -245,29 +260,29 @@ class Model:
                 self.model_option = json.load(f)
         len_input1 = self.model_option["len_input"]
         len_output1 = self.model_option["len_output"]
-        hidden_layer1 = self.model_option["hidden_layers"]
-        grid1 = 5
-        maximum_grid = grid1
+        grid1 = self.model_option["grid"]
         k1 = self.model_option["k"]
+        hidden_layer1 = self.model_option["hidden_layers"]
+        maximum_hl = hidden_layer1[:]
         maxi = 10 ** 10
-        while grid1 < 100:
+        while True:
             self.model = KAN(
                 width=[len_input1, *hidden_layer1, len_output1],
                 grid=grid1, k=k1, auto_save=False, seed=0)
             result = self.model.fit(
                 self.dataset,
                 opt="LBFGS",
-                lamb=0.001,
+                lamb=0.01,
                 steps=1,
                 update_grid=False,
-                metrics=(
-                    self.train_acc,
-                    self.test_acc
-                )
+                # metrics=(
+                #     self.train_acc,
+                #     self.test_acc
+                # )
             )
-            if result['test_acc'][-1] < maxi:
-                maxi = result['test_acc'][-1]
-                maximum_grid = grid1
+            if result['train_loss'][-1] < maxi:
+                maxi = result['train_loss'][-1]
+                maximum_hl = hidden_layer1[:]
                 with open(self.pre_model_json, "w") as f:
                     data = {"hidden_layers": hidden_layer1,
                             "grid": grid1,
@@ -275,25 +290,29 @@ class Model:
                     json.dump(data, f)
                 self.model_save()
 
-            print(result['train_acc'], result['test_acc'])
-            print(f"grid1={grid1}, maximum_grid={maximum_grid}, maxi_test_acc={maxi}")
-            grid1 += 1
+            print(
+                f"hidden_layer1={hidden_layer1}, " 
+                f"maximum_hl={maximum_hl}, maxi={maxi}"
+            )
+            for i in range(len(hidden_layer1)):
+                hidden_layer1[i] = \
+                    self.random.choice(list(range(2, 100)))
 
     def loss_fn(self, x, y):
-        return torch.max(torch.abs(x - y))
+        return torch.mean(y - x)
 
     def train_acc(self):
-        return torch.mean((
-            torch.round(
-                    self.model(self.dataset['train_input'])) ==
-                    self.dataset['train_label']
+        return torch.mean(
+            torch.abs(
+                    self.model(self.dataset['train_input'] -
+                    self.dataset['train_label'])
             ).type(self.dtype))
 
     def test_acc(self):
-        return torch.mean((
-            torch.round(
-                    self.model(self.dataset['test_input'])) ==
-                    self.dataset['test_label']
+        return torch.mean(
+            torch.abs(
+                    self.model(self.dataset['test_input'] -
+                    self.dataset['test_label'])
             ).type(self.dtype))
 
     def model_test(self):
@@ -301,9 +320,14 @@ class Model:
 
     def model_predict(self):
         print("self.model_predict() starting...")
-        
-        
-
+        # print(self.dataset['train_input'])
+        output = self.model(self.dataset['train_input']).tolist()
+        # print(output)
+        for i in range(len(output)):
+            print(output[i][-5:])
+            print(self.dataset['train_input'][i][-5:].tolist())
+            print(self.dataset['train_label'][i][-5:].tolist())
+            print("")
 
 
 if __name__ == "__main__":
