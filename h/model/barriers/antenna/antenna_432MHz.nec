@@ -37,9 +37,9 @@ CM ax.plot(data[:, 0], data[:, 1], data[:, 2])
 CM plt.show()
 CM 
 CE
-SY S=1/27	'metr
-SY R=0.0001	'radius
-GW	1	9	0	0	0	1*S	1*S	1*S	R	'Wire 1, 9 segments, halve wavelength long.
+SY S=1/27
+SY R=0.0001
+GW	1	9	0	0	0	1*S	1*S	1*S	R
 GW	2	9	1*S	1*S	1*S	1*S	1*S	2*S	R
 GW	3	9	1*S	1*S	2*S	1*S	1*S	3*S	R
 GW	4	9	1*S	1*S	3*S	1*S	2*S	2*S	R
