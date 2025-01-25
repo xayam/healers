@@ -1,0 +1,53 @@
+CM # ANT : SIZE = 16
+CM 
+CM import numpy as np
+CM import matplotlib.pyplot as plt
+CM SIZE = 16
+CM def primfacs(n):
+CM    i = 2
+CM    primfac = []
+CM    while i * i <= n:
+CM        while n % i == 0:
+CM            primfac.append(i)
+CM            n = n / i
+CM        i = i + 1
+CM    if n > 1:
+CM        primfac.append(round(n))
+CM    return primfac
+CM data = [[0, 0, 0], [1, 1, 1]]
+CM for n in range(2, SIZE):
+CM     factor = primfacs(n)
+CM     if len(factor) in [1, 2, 3]:
+CM         tail = [1] * (3 - len(factor))
+CM         data.append(tail + factor)
+CM data = np.asarray(data)
+CM fig = plt.figure(figsize=(12, 12))
+CM ax = fig.add_subplot(projection=
+CM ax.plot(data[:, 0], data[:, 1], data[:, 2])
+CM plt.show()
+CM 
+CE
+SY S=1/27	'metr
+SY R=0.0001	'radius
+GW	1	9	0	0	0	1*S	1*S	1*S	R	'Wire 1, 9 segments, halve wavelength long.
+GW	2	9	1*S	1*S	1*S	1*S	1*S	2*S	R
+GW	3	9	1*S	1*S	2*S	1*S	1*S	3*S	R
+GW	4	9	1*S	1*S	3*S	1*S	2*S	2*S	R
+GW	5	9	1*S	2*S	2*S	1*S	1*S	5*S	R
+GW	6	9	1*S	1*S	5*S	1*S	2*S	3*S	R
+GW	7	9	1*S	2*S	3*S	1*S	1*S	7*S	R
+GW	8	9	1*S	1*S	7*S	2*S	2*S	2*S	R
+GW	9	9	2*S	2*S	2*S	1*S	3*S	3*S	R
+GW	10	9	1*S	3*S	3*S	1*S	2*S	5*S	R
+GW	11	9	1*S	2*S	5*S	1*S	1*S	11*S	R
+GW	12	9	1*S	1*S	11*S	2*S	2*S	3*S	R
+GW	13	9	2*S	2*S	3*S	1*S	1*S	13*S	R
+GW	14	9	1*S	1*S	13*S	1*S	2*S	7*S	R
+GW	15	9	1*S	2*S	7*S	1*S	3*S	5*S	R
+GW	16	9	1*S	3*S	5*S	0	0	0	R
+GE	0
+GN	-1
+EK
+EX	0	1	9	0	1	0	0	'Voltage source (1+j0) at wire 1 segment 9.
+FR	0	0	0	0	432	0
+EN
