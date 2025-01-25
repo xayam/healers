@@ -26,14 +26,18 @@ class AXData:
 
     def run(self):
         data = [[0, 0, 0], [1, 1, 1]]
+        print(f"AX{self.size}")
+        print("[0, 0, 0]")
+        print("[1, 1, 1]")
         for n in range(2, self.size):
             factor = self.primfacs(n)
             if len(factor) in [1, 2, 3]:
                 tail = [1] * (3 - len(factor))
                 data.append(tail + factor)
-        print(f"AX{self.size}")
-        for x, y, z in data:
-            print(f"[{x}, {y}, {z}]")
+                x, y, z = data[-1]
+                print(f"[{x}, {y}, {z}]")
+            else:
+                print(n)
         print(f"SIZE={self.size}, len(data)={len(data)}")
         if self.plot:
             data = np.asarray(data)
