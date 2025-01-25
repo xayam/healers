@@ -2,7 +2,10 @@
 
 class AX256:
     def __init__(self):
-        pass
+        self.size = 256
+
+    def run(self):
+        print(f"AX{self.size}")
 
 
 def main():

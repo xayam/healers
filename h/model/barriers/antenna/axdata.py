@@ -1,6 +1,7 @@
 import numpy as np
 import matplotlib.pyplot as plt
 
+from ax256.ax256 import AX256
 
 SIZES = [16, 64]
 
@@ -46,6 +47,8 @@ def main():
     for size in SIZES:
         ax = AXData(size=size)
         ax.run()
+    ax = AX256()
+    ax.run()
 
 
 if __name__ == "__main__":
