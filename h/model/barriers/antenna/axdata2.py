@@ -98,7 +98,7 @@ class AXData:
 
     def nec(self):
         folder = "axdata2"
-        scale = "1/284"
+        scale = "1/142"
         radius = "0.00001"
         freq_mhz = "1420"
         filename = f"{folder}/ax721_{freq_mhz}Mhz.nec"
@@ -114,7 +114,7 @@ class AXData:
             "{{FREQMHZ}}", freq_mhz, 1
         )
         x, y, z = 0, 0, 0
-        self.data.append([x, y, z])
+        # self.data.append([x, y, z])
         gws = ""
         segment = 2
         for i in range(1, len(self.data)):
