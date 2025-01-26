@@ -99,7 +99,7 @@ class AXData:
     def nec(self):
         folder = "axdata2"
         scale = "1/284"
-        radius = "0.0001"
+        radius = "0.00001"
         freq_mhz = "1420"
         filename = f"{folder}/ax721_{freq_mhz}Mhz.nec"
         if not os.path.exists(folder):
