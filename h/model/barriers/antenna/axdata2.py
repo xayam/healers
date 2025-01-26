@@ -101,7 +101,7 @@ class AXData:
         scale = "1/284"
         radius = "0.0001"
         freq_mhz = "1420"
-        filename = f"{folder}/ax{self.size}_{freq_mhz}Mhz.nec"
+        filename = f"{folder}/ax721_{freq_mhz}Mhz.nec"
         if not os.path.exists(folder):
             os.mkdir(folder)
         self.output = str(self.template).replace(
