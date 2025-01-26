@@ -9,7 +9,7 @@ class AXData:
         self.output = None
         self.template = None
         self.data = None
-        self.limit = 24
+        self.limit = 22
         self.plot = plot
         self.init()
 
@@ -71,7 +71,7 @@ class AXData:
         ]
         coeffs = [
             [1, 1, 1],
-            [-1, -1, -1],
+            # [-1, -1, -1],
             # [1, 1, -1],
             # [1, -1, 1],
             # [-1, 1, 1],
