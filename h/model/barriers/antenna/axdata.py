@@ -2,7 +2,7 @@ import numpy as np
 import matplotlib.pyplot as plt
 
 
-SIZES = [16]
+SIZES = [16, 128]
 
 
 class AXData:
