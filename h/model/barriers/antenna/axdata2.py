@@ -114,6 +114,7 @@ class AXData:
             "{{FREQMHZ}}", freq_mhz, 1
         )
         x, y, z = 0, 0, 0
+        self.data.append([x, y, z])
         gws = ""
         segment = 2
         for i in range(1, len(self.data)):
