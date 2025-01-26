@@ -3,15 +3,12 @@ import os
 import numpy as np
 import matplotlib.pyplot as plt
 
-SIZE = 128
-
 
 class AXData:
-    def __init__(self, size, plot=True):
+    def __init__(self, plot=True):
         self.output = None
         self.template = None
         self.data = None
-        self.size = size
         self.plot = plot
         self.init()
 
@@ -108,7 +105,7 @@ class AXData:
 
 
 def main():
-    ax = AXData(size=SIZE)
+    ax = AXData()
     ax.run()
     ax.nec()
 
