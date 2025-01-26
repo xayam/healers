@@ -75,7 +75,7 @@ class AXData:
         folder = "ax641"
         scale = "1/142"
         radius = "0.00001"
-        freq_mhz = "1420"
+        freq_mhz = "1437"
         filename = f"{folder}/AX641_{freq_mhz}MHz.nec"
         if not os.path.exists(folder):
             os.mkdir(folder)

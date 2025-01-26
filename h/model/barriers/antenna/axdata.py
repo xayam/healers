@@ -9,6 +9,7 @@ class AXData:
         self.output = None
         self.template = None
         self.data = None
+        self.limit = 24
         self.plot = plot
         self.init()
 
@@ -47,22 +48,53 @@ class AXData:
                 print(f"n={n}, i={i}, chunk={chunk}")
                 i += 1
             try:
-                if len(data[2]) == 12:
+                if len(data[0 + 2]) >= self.limit:
                     break
             except IndexError:
                 pass
             n += 1
         for d in data:
             print(f"len(d)={len(d)}")
-        data1 = [data[0][:12], data[1][:12], data[2][:12]]
-        self.data = [
+        t = 0
+        data1 = [
+            data[t][:self.limit],
+            data[t + 1][:self.limit],
+            data[t + 2][:self.limit]
+        ]
+        data = [
             [
                 data1[0][j][0] * data1[0][j][1] * data1[0][j][2],
                 data1[1][j][0] * data1[1][j][1] * data1[1][j][2],
                 data1[2][j][0] * data1[2][j][1] * data1[2][j][2]
             ]
-            for j in range(12)
+            for j in range(self.limit)
         ]
+        coeffs = [
+            [1, 1, 1],
+            [-1, -1, -1],
+            # [1, 1, -1],
+            # [1, -1, 1],
+            # [-1, 1, 1],
+            # [-1, -1, 1],
+            # [-1, 1, -1],
+            # [1, -1, -1],
+        ]
+        appendix = [[], [], [], [], [], [], [], []]
+        for c in range(len(coeffs)):
+            for i in range(
+                    c * self.limit // len(coeffs),
+                    (c + 1) *  self.limit // len(coeffs)
+            ):
+                appendix[c].append(
+                    [
+                        data[i][0] * coeffs[c][0],
+                        data[i][1] * coeffs[c][1],
+                        data[i][2] * coeffs[c][2]
+                    ]
+                )
+        self.data = []
+        for a in appendix:
+            self.data += a
         data = self.data
         if self.plot:
             data = np.asarray(data)
@@ -72,11 +104,11 @@ class AXData:
             plt.show()
 
     def nec(self):
-        folder = "ax641"
+        folder = "ax"
         scale = "1/142"
         radius = "0.00001"
         freq_mhz = "1420"
-        filename = f"{folder}/AX641_{freq_mhz}MHz.nec"
+        filename = f"{folder}/AX_{freq_mhz}MHz.nec"
         if not os.path.exists(folder):
             os.mkdir(folder)
         self.output = str(self.template).replace(
