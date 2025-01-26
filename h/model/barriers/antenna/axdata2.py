@@ -5,28 +5,6 @@ import matplotlib.pyplot as plt
 
 SIZE = 128
 
-PARAMS = [
-    # [
-    #     16,  # size
-    #     "1/71",  # scale
-    #     "0.0001",  # radius
-    #     "1420"  # freq MHz
-    # ],
-    # [
-    #     16,  # size
-    #     "1/27",  # scale
-    #     "0.0001",  # radius
-    #     "432"  # freq MHz
-    # ],
-    [
-        64,  # size
-        "1/128",  # scale
-        "0.0001",  # radius
-        "128"  # freq MHz
-    ],
-
-]
-
 
 class AXData:
     def __init__(self, size, plot=True):
