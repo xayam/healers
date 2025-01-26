@@ -79,12 +79,12 @@ class AXData:
             n += 1
         for d in data:
             print(f"len(d)={len(d)}")
-        self.data1 = [data[0][:16], data[1][:16], data[2][:16]]
+        data1 = [data[0][:16], data[1][:16], data[2][:16]]
         self.data = [
             [
-                self.data1[0][j][0] * self.data1[0][j][1] * self.data1[0][j][2],
-                self.data1[1][j][0] * self.data1[1][j][1] * self.data1[1][j][2],
-                self.data1[2][j][0] * self.data1[2][j][1] * self.data1[2][j][2]
+                data1[0][j][0] * data1[0][j][1] * data1[0][j][2],
+                data1[1][j][0] * data1[1][j][1] * data1[1][j][2],
+                data1[2][j][0] * data1[2][j][1] * data1[2][j][2]
             ]
             for j in range(16)
         ]
@@ -97,21 +97,21 @@ class AXData:
             plt.show()
 
     def nec(self):
-        self.folder = "axdata2"
-        self.scale = "1.0"
-        self.radius = "0.001"
-        self.freq_mhz = "1420"
-        self.filename = f"ax{self.size}_{self.freq_mhz}Mhz.nec"
-        if not os.path.exists(self.folder):
-            os.mkdir(self.folder)
+        folder = "axdata2"
+        scale = "1.0"
+        radius = "0.001"
+        freq_mhz = "1420"
+        filename = f"ax{self.size}_{freq_mhz}Mhz.nec"
+        if not os.path.exists(folder):
+            os.mkdir(folder)
         self.output = str(self.template).replace(
-            "{{SCALE}}", self.scale, 1
+            "{{SCALE}}", scale, 1
         )
         self.output = str(self.output).replace(
-            "{{RADIUS}}", self.radius, 1
+            "{{RADIUS}}", radius, 1
         )
         self.output = str(self.output).replace(
-            "{{FREQMHZ}}", self.freq_mhz, 1
+            "{{FREQMHZ}}", freq_mhz, 1
         )
         x, y, z = 0, 0, 0
         self.data.append([x, y, z])
@@ -125,7 +125,7 @@ class AXData:
         self.output = str(self.output).replace(
             "{{GW}}", gws[:-1], 1
         )
-        with open(self.filename, mode="w", encoding="utf-8") as output:
+        with open(filename, mode="w", encoding="utf-8") as output:
             output.write(self.output)
 
 
