@@ -20,9 +20,9 @@ PARAMS = [
     ],
     [
         64, # size
-        "1/71", # scale
+        "1/128", # scale
         "0.0001", # radius
-        "1420" # freq MHz
+        "128" # freq MHz
     ],
 
 ]
