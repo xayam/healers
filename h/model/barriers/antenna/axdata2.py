@@ -98,8 +98,8 @@ class AXData:
 
     def nec(self):
         folder = "axdata2"
-        scale = "1.0"
-        radius = "0.001"
+        scale = "1/284"
+        radius = "0.0001"
         freq_mhz = "1420"
         filename = f"{folder}/ax{self.size}_{freq_mhz}Mhz.nec"
         if not os.path.exists(folder):
@@ -114,7 +114,6 @@ class AXData:
             "{{FREQMHZ}}", freq_mhz, 1
         )
         x, y, z = 0, 0, 0
-        self.data.append([x, y, z])
         gws = ""
         segment = 2
         for i in range(1, len(self.data)):
