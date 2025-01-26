@@ -72,21 +72,21 @@ class AXData:
                 print(f"n={n}, i={i}, chunk={chunk}")
                 i += 1
             try:
-                if len(data[2]) == 16:
+                if len(data[2]) == 12:
                     break
             except IndexError:
                 pass
             n += 1
         for d in data:
             print(f"len(d)={len(d)}")
-        data1 = [data[0][:16], data[1][:16], data[2][:16]]
+        data1 = [data[0][:12], data[1][:12], data[2][:12]]
         self.data = [
             [
                 data1[0][j][0] * data1[0][j][1] * data1[0][j][2],
                 data1[1][j][0] * data1[1][j][1] * data1[1][j][2],
                 data1[2][j][0] * data1[2][j][1] * data1[2][j][2]
             ]
-            for j in range(16)
+            for j in range(12)
         ]
         data = self.data
         if self.plot:
@@ -97,11 +97,11 @@ class AXData:
             plt.show()
 
     def nec(self):
-        folder = "axdata2"
+        folder = "ax641"
         scale = "1/142"
         radius = "0.00001"
         freq_mhz = "1420"
-        filename = f"{folder}/ax721_{freq_mhz}Mhz.nec"
+        filename = f"{folder}/AX641_{freq_mhz}MHz.nec"
         if not os.path.exists(folder):
             os.mkdir(folder)
         self.output = str(self.template).replace(
