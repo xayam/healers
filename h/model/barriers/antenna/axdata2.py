@@ -132,6 +132,7 @@ class AXData:
 def main():
     ax = AXData(size=SIZE)
     ax.run()
+    ax.nec()
 
 
 if __name__ == "__main__":
