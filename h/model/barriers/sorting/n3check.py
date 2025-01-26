@@ -7,7 +7,7 @@ from n3utils import progress
 
 
 def n3c_check():
-    # TODO
+    # TO DO
     maximum = 32
     plt.figure(figsize=(4, 4))
     plt.axis([0, maximum, 0, maximum])
