@@ -1,9 +1,9 @@
-import os.path
-from os import mkdir
+import os
 
 import numpy as np
 import matplotlib.pyplot as plt
 
+SIZE = 128
 
 PARAMS = [
     # [
@@ -29,16 +29,11 @@ PARAMS = [
 
 
 class AXData:
-    def __init__(self, size, scale, radius, freq_mhz, plot=True):
+    def __init__(self, size, plot=True):
         self.output = None
         self.template = None
         self.data = None
         self.size = size
-        self.scale = scale
-        self.radius = radius
-        self.freq_mhz = freq_mhz
-        self.folder = f"ax{self.size}"
-        self.filename = f"{self.folder}/AX{self.size}_{self.freq_mhz}MHz.nec"
         self.plot = plot
         self.init()
 
@@ -60,25 +55,40 @@ class AXData:
         return primfac
 
     def run(self):
-        data = [[0, 0, 0], [1, 1, 1]]
-        print(f"AX{self.size}")
-        print("[0, 0, 0]")
-        print("[1, 1, 1]")
-        for n in range(2, self.size):
+        data = [[[0, 0, 0], [1, 1, 1]]]
+        n = 2
+        while True:
             factor = self.primfacs(n)
-            x, y, z = 0, 0, 0
+            i = 0
             for f in range(0, len(factor), 3):
                 tail = factor[f: f + 3]
                 head = [1] * (3 - len(tail))
                 chunk = head + tail
-                chunk[0], chunk[1], chunk[2] = \
-                    chunk[0] - x, chunk[1] - y, chunk[2] - z
-                data.append(chunk)
-                print(f"[{chunk[0]}, {chunk[1]}, {chunk[2]}]")
-                # print(f"n={n}, head={head}, tail={tail}")
-                x, y, z = chunk[0], chunk[1], chunk[2]
-        print(f"SIZE={self.size}, len(data)={len(data)}")
-        self.data = data
+                try:
+                    data[i].append(chunk)
+                except IndexError:
+                    data.append([])
+                    data[i].append(chunk)
+                print(f"n={n}, i={i}, chunk={chunk}")
+                i += 1
+            try:
+                if len(data[2]) == 16:
+                    break
+            except IndexError:
+                pass
+            n += 1
+        for d in data:
+            print(f"len(d)={len(d)}")
+        self.data1 = [data[0][:16], data[1][:16], data[2][:16]]
+        self.data = [
+            [
+                self.data1[0][j][0] * self.data1[0][j][1] * self.data1[0][j][2],
+                self.data1[1][j][0] * self.data1[1][j][1] * self.data1[1][j][2],
+                self.data1[2][j][0] * self.data1[2][j][1] * self.data1[2][j][2]
+            ]
+            for j in range(16)
+        ]
+        data = self.data
         if self.plot:
             data = np.asarray(data)
             fig = plt.figure(figsize=(12, 12))
@@ -87,8 +97,13 @@ class AXData:
             plt.show()
 
     def nec(self):
+        self.folder = "axdata2"
+        self.scale = "1.0"
+        self.radius = "0.001"
+        self.freq_mhz = "1420"
+        self.filename = f"ax{self.size}_{self.freq_mhz}Mhz.nec"
         if not os.path.exists(self.folder):
-            mkdir(self.folder)
+            os.mkdir(self.folder)
         self.output = str(self.template).replace(
             "{{SCALE}}", self.scale, 1
         )
@@ -115,15 +130,8 @@ class AXData:
 
 
 def main():
-    for size, scale, radius, freq_mhz in PARAMS:
-        ax = AXData(
-            size=size,
-            scale=scale,
-            radius=radius,
-            freq_mhz=freq_mhz
-        )
-        ax.run()
-        ax.nec()
+    ax = AXData(size=SIZE)
+    ax.run()
 
 
 if __name__ == "__main__":
