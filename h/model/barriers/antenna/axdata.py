@@ -5,11 +5,11 @@ import matplotlib.pyplot as plt
 
 
 class AXData:
-    def __init__(self, plot=True):
+    def __init__(self, limit, plot=True):
         self.output = None
         self.template = None
         self.data = None
-        self.limit = 22
+        self.limit = limit
         self.plot = plot
         self.init()
 
@@ -137,7 +137,11 @@ class AXData:
 
 
 def main():
-    ax = AXData()
+    ax = AXData(limit=22)
+    ax.run()
+    ax = AXData(limit=23)
+    ax.run()
+    ax = AXData(limit=32)
     ax.run()
     # ax.nec()
 
