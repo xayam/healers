@@ -1,3 +1,4 @@
+import json
 import os
 
 import numpy as np
@@ -33,6 +34,7 @@ class AXData:
     def run(self):
         data = [[[0, 0, 0], [1, 1, 1]]]
         n = 2
+        t = 6
         while True:
             factor = self.primfacs(n)
             i = 0
@@ -42,20 +44,27 @@ class AXData:
                 chunk = head + tail
                 try:
                     data[i].append(chunk)
+
                 except IndexError:
                     data.append([])
                     data[i].append(chunk)
-                print(f"n={n}, i={i}, chunk={chunk}")
+                message = ""
+                for k in data:
+                    message += f"{len(k)}-"
+                message = message[:-1] + f", n={n}, i={i}, chunk={chunk}"
+                print(message)
+                # with open("log.txt", mode="a", encoding="utf-8") as log:
+                #     log.write(message + "\n")
+
                 i += 1
             try:
-                if len(data[0 + 2]) >= self.limit:
+                if len(data[t + 2]) >= self.limit:
                     break
             except IndexError:
                 pass
             n += 1
         for d in data:
             print(f"len(d)={len(d)}")
-        t = 0
         data1 = [
             data[t][:self.limit],
             data[t + 1][:self.limit],
@@ -83,7 +92,7 @@ class AXData:
         for c in range(len(coeffs)):
             for i in range(
                     c * self.limit // len(coeffs),
-                    (c + 1) *  self.limit // len(coeffs)
+                    (c + 1) * self.limit // len(coeffs)
             ):
                 appendix[c].append(
                     [
@@ -95,6 +104,8 @@ class AXData:
         self.data = []
         for a in appendix:
             self.data += a
+        with open(f"data{t}.json", mode="w", encoding="utf-8") as js:
+            js.write(json.dumps(self.data))
         data = self.data
         if self.plot:
             data = np.asarray(data)
