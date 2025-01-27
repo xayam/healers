@@ -137,9 +137,9 @@ class AXData:
 
 
 def main():
-    ax = AXData(limit=22)
+    ax = AXData(limit=23)
     ax.run()
-    # ax = AXData(limit=23)
+    # ax = AXData(limit=22)
     # ax.run()
     # ax = AXData(limit=32)
     # ax.run()
