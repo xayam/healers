@@ -139,7 +139,7 @@ class AXData:
 def main():
     ax = AXData()
     ax.run()
-    ax.nec()
+    # ax.nec()
 
 
 if __name__ == "__main__":
