@@ -73,7 +73,7 @@ class ChessDataGenerator:
             if score is None:
                 board = chess.Board()
                 continue
-            board.push(moves[best_index])
+            board.push(self.random.choice(moves))
             if count > self.num_samples:
                 break
             if board.is_game_over():
