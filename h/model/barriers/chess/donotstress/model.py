@@ -5,11 +5,16 @@ import torch
 from torch_geometric.data import Data
 from torch_geometric.nn import GATConv, global_mean_pool, global_max_pool
 import chess
+import chess.engine
 
 
 class ChessDataGenerator:
     def __init__(self, num_samples=1000):
         self.epd_eval = "../dataset.epdeval"
+        self.engine_stockfish = \
+            'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
+            '/stockfish-windows-x86-64-avx2.exe'
+        self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
         self.random = random.SystemRandom(0)
         self.num_samples = num_samples
         self.piece_values = {'p': 1, 'n': 3, 'b': 3, 'r': 5, 'q': 9, 'k': 100}
@@ -26,6 +31,55 @@ class ChessDataGenerator:
             scores.append(float(spl[-1]))
         return fens, scores
 
+    def get_score(self, board, depth=10):
+        result = self.sf.analyse(
+            board,
+            chess.engine.Limit(depth=depth),
+        )
+        score = result['score'].white().score()
+        return score
+
+    def get_fen(self):
+        fens, scores = [], []
+        board = chess.Board()
+        count = 0
+        while True:
+            moves = list(board.legal_moves)
+            index = 0
+            best_index = 0
+            curr = 10 ** 10
+            score = None
+            if board.turn == chess.WHITE:
+                curr = - curr
+            for move in moves:
+                board.push(move)
+                score = self.get_score(board)
+                if score is None:
+                    board.pop()
+                    continue
+                if board.turn == chess.WHITE:
+                    if curr > score:
+                        curr = score
+                        best_index = index
+                else:
+                    if curr < score:
+                        curr = score
+                        best_index = index
+                fens.append(board.fen())
+                scores.append(score / 100.0)
+                board.pop()
+                index += 1
+                count += 1
+            if score is None:
+                board = chess.Board()
+                continue
+            board.push(moves[best_index])
+            if count > self.num_samples:
+                break
+            if board.is_game_over():
+                board = chess.Board()
+        return fens, scores
+
     def board_to_graph(self, board, score):
         """Безопасное преобразование позиции в граф с проверкой индексов."""
         node_features = []
@@ -37,6 +91,7 @@ class ChessDataGenerator:
             if piece:
                 # Генерируем признаки для фигуры
                 features = [
+                    float(int(board.turn)),
                     self.piece_to_id(piece.symbol()),
                     0.0 if piece.color == chess.WHITE else 1.0,
                     (square % 8) / 7.0,
@@ -95,11 +150,13 @@ class ChessDataGenerator:
     def generate_dataset(self):
         """Генерирует набор данных."""
         dataset = []
-        fens, scores = self.get_fen_epd()
+        board = chess.Board()
+        fens, scores = self.get_fen()
         for i in range(len(fens)):
-            board = chess.Board()
             board.set_fen(fens[i])
             graph = self.board_to_graph(board, scores[i])
+            if graph is None:
+                continue
             if graph.num_nodes > 0:
                 dataset.append(graph)
         return dataset
@@ -107,20 +164,23 @@ class ChessDataGenerator:
     def predict(self, model, board):
         graph = self.board_to_graph(board, 0.0)
         if graph.num_nodes > 0:
-            return model(graph)[0][0]
+            return 100.0 * model(graph)[0][0]
         else:
             return None
 
 
 class ChessGNN(torch.nn.Module):
-    def __init__(self, node_dim=5, hidden_dim=64):
+    def __init__(self, node_dim=6, hidden_dim=64):
         super().__init__()
         self.file_model = "model.pth"
         self.node_embed = torch.nn.Linear(node_dim, hidden_dim)
         self.gat1 = GATConv(hidden_dim, hidden_dim)
         self.gat2 = GATConv(hidden_dim, hidden_dim)
+        self.gat3 = GATConv(hidden_dim, hidden_dim)
         self.fc = torch.nn.Sequential(
-            torch.nn.Linear(2 * hidden_dim, 64),
+            torch.nn.Linear(2 * hidden_dim, 128),
+            torch.nn.ReLU(),
+            torch.nn.Linear(128, 64),
             torch.nn.ReLU(),
             torch.nn.Linear(64, 32),
             torch.nn.ReLU(),
@@ -133,6 +193,8 @@ class ChessGNN(torch.nn.Module):
         x = self.gat1(x, edge_index)
         x = torch.relu(x)
         x = self.gat2(x, edge_index)
+        x = torch.relu(x)
+        x = self.gat3(x, edge_index)
         x = torch.cat([global_mean_pool(x, batch), global_max_pool(x, batch)], dim=1)
         return self.fc(x)
 
@@ -145,13 +207,13 @@ class ChessGNN(torch.nn.Module):
 
 
 def train():
-    generator = ChessDataGenerator(num_samples=1000)
+    generator = ChessDataGenerator(num_samples=10000)
     dataset = generator.generate_dataset()
     model = ChessGNN()
     optimizer = torch.optim.Adam(model.parameters(), lr=0.0005)
     criterion = torch.nn.MSELoss()
 
-    for epoch in range(500):
+    for epoch in range(200):
         total_loss = 0
         for batch in dataset:
             optimizer.zero_grad()
@@ -168,4 +230,5 @@ def train():
 
 
 if __name__ == "__main__":
-    train()
+    while True:
+        train()

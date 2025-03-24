@@ -36,7 +36,7 @@ class UCI:
     def uci(self) -> None:
         self.output("id name donotstress")
         self.output("id author Aleksey Belyanin, xayam@yandex.ru")
-        self.output("")
+        # self.output("")
         self.output("uciok")
 
     def isready(self) -> None:
@@ -94,11 +94,11 @@ class UCI:
             self.state.push(move)
             score = self.generator.predict(self.model, self.state)
             if self.state.turn == chess.WHITE:
-                if curr < score:
+                if curr > score:
                     curr = score
                     best_index = index
             else:
-                if curr > score:
+                if curr < score:
                     curr = score
                     best_index = index
             self.state.pop()
