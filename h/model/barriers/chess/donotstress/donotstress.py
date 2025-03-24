@@ -1,6 +1,8 @@
 from sys import stdout
 import chess
 
+from h.model.barriers.chess.donotstress.model import ChessGNN, ChessDataGenerator
+
 
 class Limits:
     def __init__(
@@ -12,28 +14,12 @@ class Limits:
         self.limited = {"nodes": nodes, "depth": depth, "time0": time}
 
 
-class Evaluate:
-
-    def __init__(self):
-        pass
-
-    @staticmethod
-    def evaluate(board: chess.Board, color: chess.Color) -> float:
-        return 0.0
-
-    def evalu(self, board: chess.Board) -> float:
-        e = self.evaluate(board, chess.WHITE) - \
-             self.evaluate(board, chess.BLACK)
-        if board.turn == chess.WHITE:
-            return -e
-        else:
-            return e
-
-
 class UCI:
     def __init__(self) -> None:
         self.out = stdout
         self.state = chess.Board()
+        self.generator = ChessDataGenerator()
+        self.model = ChessGNN()
         self.search = None
         self.thread: None
 
@@ -58,10 +44,6 @@ class UCI:
 
     def ucinewgame(self) -> None:
         pass
-
-    def eval(self) -> None:
-        score = 0.
-        self.output(score)
 
     def process_command(self, inp: str) -> None:
         split = inp.split(" ")
@@ -96,11 +78,32 @@ class UCI:
         elif split[0] == "print":
             print(self.state)
         elif split[0] == "go":
-            best_move, _ = "", ""
-            stdout.write("bestmove " + str(best_move) + "\n")
+            stdout.write("bestmove " + str(self.best_move()) + "\n")
             stdout.flush()
         elif split[0] == "eval":
-            return self.eval()
+            return self.generator.predict(self.model, self.state)
+
+    def best_move(self):
+        moves = list(self.state.legal_moves)
+        index = 0
+        best_index = 0
+        curr = 10 ** 10
+        if self.state.turn == chess.WHITE:
+            curr = - curr
+        for move in moves:
+            self.state.push(move)
+            score = self.generator.predict(self.model, self.state)
+            if self.state.turn == chess.WHITE:
+                if curr < score:
+                    curr = score
+                    best_index = index
+            else:
+                if curr > score:
+                    curr = score
+                    best_index = index
+            self.state.pop()
+            index += 1
+        return moves[best_index]
 
 
 def main() -> None:

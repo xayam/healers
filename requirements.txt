@@ -19,3 +19,4 @@ pykan
 pydub
 playsound
 pillow
+torch-geometric
