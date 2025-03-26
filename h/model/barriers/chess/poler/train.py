@@ -59,7 +59,7 @@ class Train:
                     loss_white, loss_black, result = \
                         self.play_episode(
                             white=white_agent, black=black_agent,
-                            shift=shift, depth=task[0]["depth"]
+                            shift=task[0]["shift"], depth=1
                         )
                     results[result] += 1
                     losses1 += abs(loss_white)
@@ -68,7 +68,7 @@ class Train:
                         white_agent.model_save()
                     if black_agent.model is not None:
                         black_agent.model_save()
-                    print(task[0]["info"] + str(task[0]["depth"]) +
+                    print(task[0]["info"] + str(task[0]["shift"]) +
                           f": {epoches * i + episode}, r={result}, "
                           f"i={i}, s={shift}, "
                           f"{losses1 / (episode + 1)} | "
@@ -81,7 +81,7 @@ plan = []
 #         "white": ChessAgent(is_white=True),
 #         "black": ChessEngineAgent(is_white=False, model=False),
 #         "info": "Engine",
-#         "depth": 10,
+#         "shift": 10,
 #     },
 #     {
 #         "white": ChessEngineAgent(is_white=True, model=False),
@@ -92,19 +92,19 @@ plan = []
 #         "white": ChessAgent(is_white=True),
 #         "black": ChessRandomAgent(is_white=False, model=False),
 #         "info": "Random",
-#         "depth": 10,
+#         "shift": 10,
 #     },
 #     {
 #         "white": ChessRandomAgent(is_white=True, model=False),
 #         "black": ChessAgent(is_white=False),
 #     }])
-for depth in range(1, 16):
+for shift in range(1, 500):
     plan.append([
         {
             "white": ChessAgent(is_white=True),
             "black": ChessEngineAgent(is_white=False, model=False),
-            "info": "EngineDepth",
-            "depth": depth,
+            "info": "EngineShift",
+            "shift": shift,
         },
         {
             "white": ChessEngineAgent(is_white=True, model=False),
