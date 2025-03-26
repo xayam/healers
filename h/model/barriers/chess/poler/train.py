@@ -48,7 +48,7 @@ class Train:
         return loss_white, loss_black, result
 
     def plan(self):
-        for shift in range(1, 500):
+        for shift in range(1, 256):
             yield [
                 {
                     "white": ChessAgent(is_white=True),

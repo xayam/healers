@@ -74,7 +74,7 @@ class ChessEngineAgent(ChessAgent):
         result = self.sf.analyse(
             board,
             chess.engine.Limit(depth=depth),
-            multipv=499,
+            multipv=255,
         )
         if best:
             return result[0]['pv'][0]
