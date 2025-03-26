@@ -1,7 +1,6 @@
 
 import os
 import random
-import sys
 
 import chess
 import chess.engine
