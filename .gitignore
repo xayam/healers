@@ -8,6 +8,8 @@ __pycache__/
 h/model/history/
 h/mvp/history/
 h/model/barriers/chess/history/
+h/model/barriers/chess/poler/*.pth
+h/model/barriers/chess/poler/*.exe
 h/model/barriers/square/square3animation1.gif
 h/model/barriers/square/frames1animation/*
 !h/model/barriers/square/frames1animation/__init__.py
