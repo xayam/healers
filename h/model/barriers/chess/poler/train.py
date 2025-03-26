@@ -21,7 +21,7 @@ class Train:
         agent.optimizer.step()
         return loss.item()
 
-    def play_episode(self, white, black, shift=2):
+    def play_episode(self, white, black, shift=2, depth=10):
         board = chess.Board()
         history = [self.enviroment.board_to_tensor(board)]
         while not board.is_game_over():
@@ -30,7 +30,7 @@ class Train:
                 move = current_agent.get_random(board=board)
             elif isinstance(current_agent, ChessEngineAgent):
                 move = current_agent.get_move(
-                    board=board, best=False, shift=shift
+                    board=board, best=False, shift=shift, depth=depth,
                 )
             else:
                 seq = torch.stack(history[-self.enviroment.SEQ_LENGTH:])
@@ -46,30 +46,8 @@ class Train:
         loss_black = self.train_step(black, torch.stack(history[:-1]), black_reward)
         return loss_white, loss_black, result
 
-    def fit(self, epoches=100):
-        plan = [[{
-            "white": ChessAgent(is_white=True),
-            "black": ChessEngineAgent(is_white=False, model=False)
-        }, {
-            "white": ChessEngineAgent(is_white=True, model=False),
-            "black": ChessAgent(is_white=False),
-            }]] * 5
-        plan.append([
-            {
-                "white": ChessAgent(is_white=True),
-                "black": ChessRandomAgent(is_white=False, model=False)
-            }, {
-                "white": ChessRandomAgent(is_white=True, model=False),
-                "black": ChessAgent(is_white=False),
-            }])
-        plan.append([
-            {
-                "white": ChessAgent(is_white=True),
-                "black": ChessAgent(is_white=False)
-            }, {
-                "white": ChessAgent(is_white=True),
-                "black": ChessAgent(is_white=False),
-            }])
+    def fit(self, plan, epoches=100):
+
         shift = 1
         for task in plan:
             for i in range(2):
@@ -80,7 +58,8 @@ class Train:
                 for episode in range(epoches):
                     loss_white, loss_black, result = \
                         self.play_episode(
-                            white=white_agent, black=black_agent, shift=shift
+                            white=white_agent, black=black_agent,
+                            shift=shift, depth=task[0]["depth"]
                         )
                     results[result] += 1
                     losses1 += abs(loss_white)
@@ -89,12 +68,60 @@ class Train:
                         white_agent.model_save()
                     if black_agent.model is not None:
                         black_agent.model_save()
-                    print(f"{epoches * i + episode}, r={result}, "
+                    print(task[0]["info"] + str(task[0]["depth"]) +
+                          f": {epoches * i + episode}, r={result}, "
                           f"i={i}, s={shift}, "
                           f"{losses1 / (episode + 1)} | "
                           f"{losses2 / (episode + 1)} | {results}")
             shift += 1
 
+plan = []
+# plan = [[
+#     {
+#         "white": ChessAgent(is_white=True),
+#         "black": ChessEngineAgent(is_white=False, model=False),
+#         "info": "Engine",
+#         "depth": 10,
+#     },
+#     {
+#         "white": ChessEngineAgent(is_white=True, model=False),
+#         "black": ChessAgent(is_white=False),
+#     }]] * 20
+# plan.append([
+#     {
+#         "white": ChessAgent(is_white=True),
+#         "black": ChessRandomAgent(is_white=False, model=False),
+#         "info": "Random",
+#         "depth": 10,
+#     },
+#     {
+#         "white": ChessRandomAgent(is_white=True, model=False),
+#         "black": ChessAgent(is_white=False),
+#     }])
+for depth in range(1, 16):
+    plan.append([
+        {
+            "white": ChessAgent(is_white=True),
+            "black": ChessEngineAgent(is_white=False, model=False),
+            "info": "EngineDepth",
+            "depth": depth,
+        },
+        {
+            "white": ChessEngineAgent(is_white=True, model=False),
+            "black": ChessAgent(is_white=False),
+        }])
+plan.append([
+    {
+        "white": ChessAgent(is_white=True),
+        "black": ChessAgent(is_white=False),
+        "info": "Self",
+        "depth": 10,
+    },
+    {
+        "white": ChessAgent(is_white=True),
+        "black": ChessAgent(is_white=False),
+    }])
+
 
 if __name__ == "__main__":
-    Train().fit()
+    Train().fit(plan=plan)
