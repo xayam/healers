@@ -68,7 +68,7 @@ class ChessEngineAgent(ChessAgent):
         ChessAgent.__init__(self, is_white, model)
         self.engine_stockfish = \
             'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
-            '/stockfish16-windows-x86-64-avx2.exe'
+            '/stockfish17-windows-x86-64-avx2.exe'
         self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
 
     def get_move(self, board, best=True, shift=1, depth=10):
