@@ -63,7 +63,6 @@ class Train:
                 }]
 
     def fit(self, epoches=100):
-        shift = 1
         plan = self.plan()
         for task in plan:
             for i in range(2):
@@ -86,10 +85,9 @@ class Train:
                         black_agent.model_save()
                     print(task[0]["info"] + str(task[0]["shift"]) +
                           f": {epoches * i + episode}, r={result}, "
-                          f"i={i}, s={shift}, "
+                          f"i={i}, "
                           f"{losses1 / (episode + 1)} | "
                           f"{losses2 / (episode + 1)} | {results}")
-            shift += 1
             del white_agent
             del black_agent
 
