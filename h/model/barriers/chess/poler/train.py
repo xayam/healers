@@ -106,6 +106,7 @@ for shift in range(1, 500):
             "black": ChessEngineAgent(is_white=False, model=False),
             "info": "EngineShift",
             "shift": shift,
+            "depth": 1,
         },
         {
             "white": ChessEngineAgent(is_white=True, model=False),
