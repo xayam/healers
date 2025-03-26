@@ -67,7 +67,7 @@ class ChessEngineAgent(ChessAgent):
     def __init__(self, is_white=True, model=False):
         ChessAgent.__init__(self, is_white, model)
         self.engine_stockfish = \
-            'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
+            'D:/Work2/PyCharm/SmartEval2/thirdparty/stockfish17' + \
             '/stockfish-windows-x86-64-avx2.exe'
         self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
 
