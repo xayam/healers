@@ -110,17 +110,17 @@ for depth in range(1, 16):
             "white": ChessEngineAgent(is_white=True, model=False),
             "black": ChessAgent(is_white=False),
         }])
-plan.append([
-    {
-        "white": ChessAgent(is_white=True),
-        "black": ChessAgent(is_white=False),
-        "info": "Self",
-        "depth": 10,
-    },
-    {
-        "white": ChessAgent(is_white=True),
-        "black": ChessAgent(is_white=False),
-    }])
+# plan.append([
+#     {
+#         "white": ChessAgent(is_white=True),
+#         "black": ChessAgent(is_white=False),
+#         "info": "Self",
+#         "depth": 10,
+#     },
+#     {
+#         "white": ChessAgent(is_white=True),
+#         "black": ChessAgent(is_white=False),
+#     }])
 
 
 if __name__ == "__main__":

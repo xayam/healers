@@ -69,18 +69,18 @@ class ChessEngineAgent(ChessAgent):
         self.engine_stockfish = \
             'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
             '/stockfish-windows-x86-64-avx2.exe'
+        self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
 
     def get_move(self, board, best=True, shift=1, depth=10):
-        with chess.engine.SimpleEngine.popen_uci(self.engine_stockfish) as sf:
-            result = sf.analyse(
-                board,
-                chess.engine.Limit(depth=depth),
-                multipv=499,
-            )
-            if best:
+        result = self.sf.analyse(
+            board,
+            chess.engine.Limit(depth=depth),
+            multipv=499,
+        )
+        if best:
+            return result[0]['pv'][0]
+        else:
+            try:
+                return result[-shift]['pv'][0]
+            except IndexError:
                 return result[0]['pv'][0]
-            else:
-                try:
-                    return result[-shift]['pv'][0]
-                except IndexError:
-                    return result[0]['pv'][0]
