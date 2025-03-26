@@ -64,7 +64,8 @@ class Train:
 
     def fit(self, epoches=100):
         shift = 1
-        for task in self.plan():
+        plan = self.plan()
+        for task in plan:
             for i in range(2):
                 results = {"1-0": 0, "0-1": 0, "1/2-1/2": 0}
                 white_agent = task[i]["white"]
