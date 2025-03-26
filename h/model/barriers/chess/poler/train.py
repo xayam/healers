@@ -37,6 +37,7 @@ class Train:
                 next_pos = current_agent.predict_pos(seq)
                 move = current_agent.pos2move(board, next_pos)
             board.push(move)
+            print(board)
             history.append(self.enviroment.board_to_tensor(board))
         result = board.result()
         white_reward = 1.0 if result == "1-0" \
