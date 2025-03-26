@@ -47,10 +47,24 @@ class Train:
         loss_black = self.train_step(black, torch.stack(history[:-1]), black_reward)
         return loss_white, loss_black, result
 
-    def fit(self, plan, epoches=100):
+    def plan(self):
+        for shift in range(1, 500):
+            yield [
+                {
+                    "white": ChessAgent(is_white=True),
+                    "black": ChessEngineAgent(is_white=False, model=False),
+                    "info": "EngineShift",
+                    "shift": shift,
+                    "depth": 1,
+                },
+                {
+                    "white": ChessEngineAgent(is_white=True, model=False),
+                    "black": ChessAgent(is_white=False),
+                }]
 
+    def fit(self, epoches=100):
         shift = 1
-        for task in plan:
+        for task in self.plan():
             for i in range(2):
                 results = {"1-0": 0, "0-1": 0, "1/2-1/2": 0}
                 white_agent = task[i]["white"]
@@ -75,6 +89,8 @@ class Train:
                           f"{losses1 / (episode + 1)} | "
                           f"{losses2 / (episode + 1)} | {results}")
             shift += 1
+            del white_agent
+            del black_agent
 
 plan = []
 # plan = [[
@@ -99,19 +115,7 @@ plan = []
 #         "white": ChessRandomAgent(is_white=True, model=False),
 #         "black": ChessAgent(is_white=False),
 #     }])
-for shift in range(1, 500):
-    plan.append([
-        {
-            "white": ChessAgent(is_white=True),
-            "black": ChessEngineAgent(is_white=False, model=False),
-            "info": "EngineShift",
-            "shift": shift,
-            "depth": 1,
-        },
-        {
-            "white": ChessEngineAgent(is_white=True, model=False),
-            "black": ChessAgent(is_white=False),
-        }])
+
 # plan.append([
 #     {
 #         "white": ChessAgent(is_white=True),
@@ -126,4 +130,4 @@ for shift in range(1, 500):
 
 
 if __name__ == "__main__":
-    Train().fit(plan=plan)
+    Train().fit()
