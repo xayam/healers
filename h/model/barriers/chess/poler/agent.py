@@ -76,6 +76,7 @@ class ChessEngineAgent(ChessAgent):
             board,
             chess.engine.Limit(depth=depth),
             options={
+                "Skill level": 0,
                 "UCI_Elo": skill_level,
                 "UCI_LimitStrength": True,
             },
