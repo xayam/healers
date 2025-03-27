@@ -10,9 +10,7 @@ class Enviroment(Config):
         Config.__init__(self)
 
     def board_to_tensor(self, board):
-        """Конвертирует доску в тензор размером 14x8x8"""
         tensor = torch.zeros(16, 8, 8)
-        # Каналы 0-11: Фигуры (6 типов × 2 цвета)
         for square in chess.SQUARES:
             piece = board.piece_at(square)
             if piece:
