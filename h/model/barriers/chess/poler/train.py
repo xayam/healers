@@ -55,7 +55,7 @@ class Train:
                     "black": ChessEngineAgent(is_white=False),
                     "info": "EngineShift",
                     "shift": shift,
-                    "depth": 1,
+                    "depth": 10,
                 },
                 {
                     "white": ChessEngineAgent(is_white=True),
