@@ -88,8 +88,8 @@ class Train:
                           f"i={i}, "
                           f"{losses1 / (episode + 1)} | "
                           f"{losses2 / (episode + 1)} | {results}")
-            del white_agent
-            del black_agent
+                del white_agent
+                del black_agent
 
 plan = []
 # plan = [[
