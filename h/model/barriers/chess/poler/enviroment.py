@@ -11,7 +11,7 @@ class Enviroment(Config):
 
     def board_to_tensor(self, board):
         """Конвертирует доску в тензор размером 14x8x8"""
-        tensor = torch.zeros(14, 8, 8)
+        tensor = torch.zeros(16, 8, 8)
         # Каналы 0-11: Фигуры (6 типов × 2 цвета)
         for square in chess.SQUARES:
             piece = board.piece_at(square)
@@ -19,7 +19,9 @@ class Enviroment(Config):
                 channel = piece.piece_type - 1 + (6 if piece.color else 0)
                 row, col = 7 - square // 8, square % 8
                 tensor[channel, row, col] = 1
-        # Каналы 12-13: Специальные флаги
+        # Каналы 12-15: Специальные флаги
         tensor[12] = int(board.has_queenside_castling_rights(chess.WHITE))
-        tensor[13] = int(board.has_queenside_castling_rights(chess.BLACK))
+        tensor[13] = int(board.has_kingside_castling_rights(chess.WHITE))
+        tensor[14] = int(board.has_queenside_castling_rights(chess.BLACK))
+        tensor[15] = int(board.has_kingside_castling_rights(chess.BLACK))
         return tensor
