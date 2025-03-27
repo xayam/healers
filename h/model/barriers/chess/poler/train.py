@@ -49,7 +49,7 @@ class Train:
         return loss_white, loss_black, result
 
     def plan(self):
-        for level in range(21):
+        for level in range(1320, 2000):
             yield [
                 {
                     "white": ChessAgent(is_white=True),
