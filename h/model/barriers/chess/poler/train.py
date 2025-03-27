@@ -52,13 +52,13 @@ class Train:
             yield [
                 {
                     "white": ChessAgent(is_white=True),
-                    "black": ChessEngineAgent(is_white=False, model=False),
+                    "black": ChessEngineAgent(is_white=False),
                     "info": "EngineShift",
                     "shift": shift,
                     "depth": 1,
                 },
                 {
-                    "white": ChessEngineAgent(is_white=True, model=False),
+                    "white": ChessEngineAgent(is_white=True),
                     "black": ChessAgent(is_white=False),
                 }]
 
