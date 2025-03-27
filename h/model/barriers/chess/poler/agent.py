@@ -75,11 +75,11 @@ class ChessEngineAgent(ChessAgent):
         result = self.sf.analyse(
             board,
             chess.engine.Limit(depth=depth),
-            options={
-                "Skill level": 0,
-                "UCI_Elo": skill_level,
-                "UCI_LimitStrength": True,
-            },
+            # options={
+            #     "Skill level": 0,
+            #     "UCI_Elo": skill_level,
+            #     "UCI_LimitStrength": True,
+            # },
             multipv=255,
         )
         if best:

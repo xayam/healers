@@ -49,15 +49,15 @@ class Train:
         return loss_white, loss_black, result
 
     def plan(self):
-        for level in range(1320, 2000):
+        for shift in range(1, 256):
             yield [
                 {
                     "white": ChessAgent(is_white=True),
                     "black": ChessEngineAgent(is_white=False),
-                    "info": "EngineLevel",
-                    "shift": 1,
+                    "info": "EngineShift",
+                    "shift": shift,
                     "depth": 10,
-                    "level": level
+                    "level": 0
                 },
                 {
                     "white": ChessEngineAgent(is_white=True),
