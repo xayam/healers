@@ -29,8 +29,9 @@ class Train:
             if isinstance(current_agent, ChessRandomAgent):
                 move = current_agent.get_random(board=board)
             elif isinstance(current_agent, ChessEngineAgent):
+                best = True if shift == 0 else False
                 move = current_agent.get_move(
-                    board=board, best=True, shift=shift,
+                    board=board, best=best, shift=shift,
                     depth=depth, skill_level=level,
                 )
             else:
@@ -86,7 +87,7 @@ class Train:
                         white_agent.model_save()
                     if black_agent.model is not None:
                         black_agent.model_save()
-                    print(task[0]["info"] + str(task[0]["level"]) +
+                    print(task[0]["info"] + str(task[0]["shift"]) +
                           f": {epoches * i + episode}, r={result}, "
                           f"i={i}, "
                           f"{losses1 / (episode + 1)} | "
