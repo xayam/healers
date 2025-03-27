@@ -2,10 +2,12 @@
 import chess
 import torch
 
+from h.model.barriers.chess.poler.config import Config
 
-class Enviroment:
+
+class Enviroment(Config):
     def __init__(self):
-        self.SEQ_LENGTH = 100
+        Config.__init__(self)
 
     def board_to_tensor(self, board):
         """Конвертирует доску в тензор размером 14x8x8"""

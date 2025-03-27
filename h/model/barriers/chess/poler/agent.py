@@ -20,7 +20,10 @@ class ChessAgent:
         self.model = None
         self.optimizer = None
         if model:
-            self.file_model = "white.pth" if self.is_white else "black.pth"
+            self.file_model = \
+                self.enviroment.white_model_name \
+                    if self.is_white \
+                    else self.enviroment.black_model_name
             self.model = Model()
             self.optimizer = optim.Adam(self.model.parameters())
             self.model_load()
@@ -65,9 +68,7 @@ class ChessRandomAgent(ChessAgent):
 class ChessEngineAgent(ChessAgent):
     def __init__(self, is_white=True, model=False):
         ChessAgent.__init__(self, is_white, model)
-        self.engine_stockfish = \
-            'D:/Work2/PyCharm/SmartEval2/github/src/healers/healers/dist' + \
-            '/stockfish17-windows-x86-64-avx2.exe'
+        self.engine_stockfish = self.enviroment.engine_stockfish
         self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
 
     def get_move(self, board, best=True, shift=1, depth=10):
