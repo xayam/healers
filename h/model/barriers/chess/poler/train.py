@@ -21,7 +21,7 @@ class Train:
         agent.optimizer.step()
         return loss.item()
 
-    def play_episode(self, white, black, shift=2, depth=10):
+    def play_episode(self, white, black, shift=2, depth=10, level=0):
         board = chess.Board()
         history = [self.enviroment.board_to_tensor(board)]
         while not board.is_game_over():
@@ -30,7 +30,8 @@ class Train:
                 move = current_agent.get_random(board=board)
             elif isinstance(current_agent, ChessEngineAgent):
                 move = current_agent.get_move(
-                    board=board, best=False, shift=shift, depth=depth,
+                    board=board, best=True, shift=shift,
+                    depth=depth, skill_level=level,
                 )
             else:
                 seq = torch.stack(history[-self.enviroment.SEQ_LENGTH:])
@@ -48,14 +49,15 @@ class Train:
         return loss_white, loss_black, result
 
     def plan(self):
-        for shift in range(1, 256):
+        for level in range(21):
             yield [
                 {
                     "white": ChessAgent(is_white=True),
                     "black": ChessEngineAgent(is_white=False),
                     "info": "EngineShift",
-                    "shift": shift,
+                    "shift": 1,
                     "depth": 10,
+                    "level": level
                 },
                 {
                     "white": ChessEngineAgent(is_white=True),
@@ -74,7 +76,8 @@ class Train:
                     loss_white, loss_black, result = \
                         self.play_episode(
                             white=white_agent, black=black_agent,
-                            shift=task[0]["shift"], depth=1
+                            shift=task[0]["shift"], depth=task[0]["depth"],
+                            level=task[0]["level"],
                         )
                     results[result] += 1
                     losses1 += abs(loss_white)
@@ -83,7 +86,7 @@ class Train:
                         white_agent.model_save()
                     if black_agent.model is not None:
                         black_agent.model_save()
-                    print(task[0]["info"] + str(task[0]["shift"]) +
+                    print(task[0]["info"] + str(task[0]["level"]) +
                           f": {epoches * i + episode}, r={result}, "
                           f"i={i}, "
                           f"{losses1 / (episode + 1)} | "

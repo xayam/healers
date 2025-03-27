@@ -71,10 +71,11 @@ class ChessEngineAgent(ChessAgent):
         self.engine_stockfish = self.enviroment.engine_stockfish
         self.sf = chess.engine.SimpleEngine.popen_uci(self.engine_stockfish)
 
-    def get_move(self, board, best=True, shift=1, depth=10):
+    def get_move(self, board, best=True, shift=1, depth=10, skill_level=0):
         result = self.sf.analyse(
             board,
             chess.engine.Limit(depth=depth),
+            options={"Skill Level": skill_level},
             multipv=255,
         )
         if best:
