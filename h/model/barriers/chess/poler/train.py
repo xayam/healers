@@ -50,7 +50,7 @@ class Train:
         return loss_white, loss_black, result
 
     def plan(self):
-        shift = 5
+        shift = 2
         while True: # range(1, 7):
             yield [
                 {
@@ -69,10 +69,10 @@ class Train:
     def fit(self, epoches=100):
         plan = self.plan()
         count = 0
+        results = {"1-0": 0, "0-1": 0, "1/2-1/2": 0}
         for task in plan:
             for i in range(2):
                 count += 1
-                results = {"1-0": 0, "0-1": 0, "1/2-1/2": 0}
                 white_agent = task[i]["white"]
                 black_agent = task[i]["black"]
                 losses1, losses2 = 0, 0
