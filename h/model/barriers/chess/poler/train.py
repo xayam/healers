@@ -91,6 +91,7 @@ class Train:
                 del white_agent
                 del black_agent
 
+
 plan = []
 # plan = [[
 #     {
