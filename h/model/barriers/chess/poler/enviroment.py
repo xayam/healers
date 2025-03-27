@@ -17,7 +17,6 @@ class Enviroment(Config):
                 channel = piece.piece_type - 1 + (6 if piece.color else 0)
                 row, col = 7 - square // 8, square % 8
                 tensor[channel, row, col] = 1
-        # Каналы 12-15: Специальные флаги
         tensor[12] = int(board.has_queenside_castling_rights(chess.WHITE))
         tensor[13] = int(board.has_kingside_castling_rights(chess.WHITE))
         tensor[14] = int(board.has_queenside_castling_rights(chess.BLACK))
